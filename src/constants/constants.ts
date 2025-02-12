@@ -193,3 +193,153 @@ export type Tank = {
   id: string;
   name: string;
 };
+
+//飼育データ項目一覧
+export const BREEDING_TABLE_COLUMNS = [
+  {
+    id: "dateTime",
+    label: "日時",
+    sticky: "left",
+    render: (value: string) => new Date(value).toLocaleString(),
+  },
+  {
+    id: "warterTemp",
+    label: "水温",
+    suffix: "℃",
+    sticky: "top",
+  },
+  {
+    id: "feed1Type",
+    label: "餌種類①",
+    sticky: "top",
+    render: (value: string) => getFeedTypeName(value),
+  },
+  {
+    id: "feed1Amount",
+    label: "給餌量",
+    suffix: "g",
+    sticky: "top",
+  },
+  {
+    id: "feed2Type",
+    label: "餌種類②",
+    sticky: "top",
+    render: (value: string) => getFeedTypeName(value),
+  },
+  {
+    id: "feed2Amount",
+    label: "給餌量",
+    suffix: "g",
+    sticky: "top",
+  },
+  {
+    id: "totalFeedAmount",
+    label: "総給餌量",
+    suffix: "g",
+    sticky: "top",
+  },
+  {
+    id: "feedingActivity",
+    label: "摂餌活性",
+    sticky: "top",
+    render: (value: string) => getFeedingActivityLabel(value),
+  },
+  {
+    id: "mortality",
+    label: "斃死数",
+    sticky: "top",
+  },
+  {
+    id: "mortalityReason",
+    label: "斃死理由",
+    sticky: "top",
+    render: (value: string) => value || "-",
+  },
+  {
+    id: "transferIn",
+    label: "移動IN",
+    sticky: "top",
+  },
+  {
+    id: "transferOut",
+    label: "移動OUT",
+    sticky: "top",
+  },
+  {
+    id: "culling",
+    label: "間引き",
+    sticky: "top",
+  },
+  {
+    id: "memo",
+    label: "メモ",
+    sticky: "top",
+    render: (value: string) => value || "-",
+  },
+] as const;
+
+const getFeedTypeName = (id: string): string => {
+  const feed = FEED_TYPES.find((type) => type.id === id);
+  return feed ? feed.name : "-";
+};
+
+const getFeedingActivityLabel = (value: string): string => {
+  const activity = FEEDING_ACTIVITY.find(
+    (a) => String(a.value) === String(value)
+  );
+  return activity ? activity.label : "-";
+};
+
+//飼育データフォームの初期値定義
+export const BASE_BREEDING_FORM_INITIAL_VALUES = {
+  dateTime: "", // getCurrentDateTime()で上書きされる
+  waterTemp: "",
+  feed1Type: "type0",
+  feed1Amount: "",
+  feed2Type: "type0",
+  feed2Amount: "",
+  feedingActivity: "",
+  mortality: "",
+  mortalityReason: "",
+  transferIn: "",
+  transferOut: "",
+  culling: "",
+  memo: "",
+} as {
+  dateTime: string;
+  waterTemp: string;
+  feed1Type: string;
+  feed1Amount: string;
+  feed2Type: string;
+  feed2Amount: string;
+  feedingActivity: string;
+  mortality: string;
+  mortalityReason: string;
+  transferIn: string;
+  transferOut: string;
+  culling: string;
+  memo: string;
+};
+
+//飼育データ入力フォーム追加項目一覧
+export const ADDITIONAL_BREEDING_FORM_FIELDS = [
+  {
+    id: "test",
+    label: "TEST",
+    type: "text",
+    initialValue: "", //初期値
+  },
+  //追加したいフィールドをここに追加していく
+] as const;
+
+export type BreedingFormData = typeof BASE_BREEDING_FORM_INITIAL_VALUES & {
+  [Key in (typeof ADDITIONAL_BREEDING_FORM_FIELDS)[number]["id"]]: string;
+};
+
+export type AdditionalBreedingFormField = {
+  id: string;
+  label: string;
+  type: string;
+  placeholder?: string;
+  initialValue: string;
+};

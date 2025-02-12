@@ -14,7 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/select";
-import { FEED_TYPES, FEEDING_ACTIVITY, BR_TANKS } from "../constants/constants";
+import {
+  FEED_TYPES,
+  FEEDING_ACTIVITY,
+  BR_TANKS,
+  BREEDING_TABLE_COLUMNS,
+  ADDITIONAL_BREEDING_FORM_FIELDS,
+  BASE_BREEDING_FORM_INITIAL_VALUES,
+  BreedingFormData,
+} from "../constants/constants";
 
 interface FormData {
   dateTime: string;
@@ -58,21 +66,24 @@ const BreedingManagement: React.FC = () => {
       .slice(0, 16);
   };
 
-  const [formData, setFormData] = useState<FormData>({
-    dateTime: getCurrentDateTime(),
-    waterTemp: "",
-    feed1Type: "type0",
-    feed1Amount: "",
-    feed2Type: "type0",
-    feed2Amount: "",
-    feedingActivity: "",
-    mortality: "",
-    mortalityReason: "",
-    transferIn: "",
-    transferOut: "",
-    culling: "",
-    memo: "",
-  });
+  const generateInitialFormData = (): BreedingFormData => {
+    const initialData = { ...BASE_BREEDING_FORM_INITIAL_VALUES };
+    initialData.dateTime = getCurrentDateTime();
+
+    ADDITIONAL_BREEDING_FORM_FIELDS.forEach((field) => {
+      (initialData as any)[field.id] = field.initialValue;
+    });
+
+    return initialData as BreedingFormData;
+  };
+
+  const [formData, setFormData] = useState<BreedingFormData>(
+    generateInitialFormData()
+  );
+
+  const resetForm = () => {
+    setFormData(generateInitialFormData());
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -114,21 +125,7 @@ const BreedingManagement: React.FC = () => {
       JSON.stringify(updatedRecords)
     );
 
-    setFormData({
-      dateTime: getCurrentDateTime(),
-      waterTemp: "",
-      feed1Type: "type0",
-      feed1Amount: "",
-      feed2Type: "type0",
-      feed2Amount: "",
-      feedingActivity: "",
-      mortality: "",
-      mortalityReason: "",
-      transferIn: "",
-      transferOut: "",
-      culling: "",
-      memo: "",
-    });
+    resetForm();
   };
 
   const handleDelete = (recordId: number): void => {
@@ -308,27 +305,25 @@ const BreedingManagement: React.FC = () => {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* 斃死数と理由 */}
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <div className="space-y-2">
-                              <Label htmlFor="mortality">斃死数</Label>
-                              <Input
-                                type="number"
-                                id="mortality"
-                                name="mortality"
-                                value={formData.mortality}
-                                onChange={handleInputChange}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="mortalityReason">斃死理由</Label>
-                              <Input
-                                type="text"
-                                name="mortalityReason"
-                                value={formData.mortalityReason}
-                                onChange={handleInputChange}
-                              />
-                            </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="mortality">斃死数</Label>
+                            <Input
+                              type="number"
+                              id="mortality"
+                              name="mortality"
+                              value={formData.mortality}
+                              onChange={handleInputChange}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="mortalityReason">斃死理由</Label>
+                            <Input
+                              type="text"
+                              name="mortalityReason"
+                              value={formData.mortalityReason}
+                              onChange={handleInputChange}
+                            />
                           </div>
                         </div>
 
@@ -366,6 +361,20 @@ const BreedingManagement: React.FC = () => {
                         />
                       </div>
 
+                      {/* 追加項目 */}
+                      {ADDITIONAL_BREEDING_FORM_FIELDS.map((field) => (
+                        <div key={field.id} className="space-y-2">
+                          <Label htmlFor={field.id}>{field.label}</Label>
+                          <Input
+                            type={field.type}
+                            id={field.id}
+                            name={field.id}
+                            value={formData[field.id] || ""}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                      ))}
+
                       {/* メモ */}
                       <div className="space-y-2 col-span-2">
                         <Label htmlFor="memo">メモ</Label>
@@ -394,48 +403,24 @@ const BreedingManagement: React.FC = () => {
                     <table className="w-full border-collapse whitespace-nowrap">
                       <thead>
                         <tr className="bg-gray-50 border-b">
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900 sticky left-0 bg-gray-50">
-                            日時
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            水温
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            餌種類①
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            給餌量
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            餌種類②
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            給餌量
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            総給餌量
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            摂餌活性
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            斃死数
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            斃死理由
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            移動IN
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            移動OUT
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            間引き
-                          </th>
-                          <th className="p-3 text-left text-sm font-semibold text-gray-900">
-                            メモ
-                          </th>
+                          {BREEDING_TABLE_COLUMNS.map((column) => (
+                            <th
+                              key={column.id}
+                              className={`p-3 text-left text-sm font-semibold text-gray 900
+                              ${
+                                column.sticky === "left"
+                                  ? "sticky left-0 bg-gray-50"
+                                  : ""
+                              }
+                              ${
+                                column.sticky === "top"
+                                  ? "sticky top-0 bg-gray-50"
+                                  : ""
+                              }`}
+                            >
+                              {column.label}
+                            </th>
+                          ))}
                           <th className="p-3 text-left text-sm font-semibold text-gray-900 sticky right-0 bg-gray-50">
                             操作
                           </th>
