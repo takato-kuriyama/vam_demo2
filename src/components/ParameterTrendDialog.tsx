@@ -40,11 +40,70 @@ const ParameterTrendDialog: React.FC<ParameterTrendDialogProps> = ({
   const warningThreshold = 5;
   const dangerThreshold = 7;
 
+  //データの色を制御
+  const getDotColor = (value: number) => {
+    if (value >= dangerThreshold) return "#FF4842"; // 危険値以上は赤
+    if (value >= warningThreshold) return "#FFB020"; // 警告値以上は黄色
+    return "#2196F3"; // 通常値は青
+  };
+
+  //tooltipの色も制御
+  const getTooltipStyle = (value: number) => {
+    if (value >= dangerThreshold) {
+      return {
+        backgroundColor: "rgba(255, 72, 66, 0.1)", // 薄い赤
+        border: "2px solid #FF4842",
+        color: "#FF4842",
+      };
+    }
+    if (value >= warningThreshold) {
+      return {
+        backgroundColor: "rgba(255, 176, 32, 0.1)", // 薄い黄
+        border: "2px solid #FFB020",
+        color: "#FFB020",
+      };
+    }
+    return {
+      backgroundColor: "white",
+      border: "2px solid #2196F3",
+      color: "#2196F3",
+    };
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.[0]) return null;
+
+    const value = payload[0].value;
+    const style = getTooltipStyle(value);
+
+    return (
+      <div
+        style={{
+          backgroundColor: style.backgroundColor,
+          border: style.border,
+          borderRadius: "12px",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
+          padding: "12px 16px",
+        }}
+      >
+        <p style={{ color: "#333333", fontWeight: 600, marginBottom: "4px" }}>
+          時刻: {label}
+        </p>
+        <p>
+          <span style={{ color: style.color, fontWeight: 600 }}>
+            {`${value.toFixed(2)} ${parameter.unit}`}
+          </span>
+        </p>
+        <p style={{ color: "#666666" }}>{parameter.name}</p>
+      </div>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl bg-white">
         <DialogHeader className="flex flex-row items-center justify-between pr-4">
-          <DialogTitle className="text-xl font-semibold text-gray-300">
+          <DialogTitle className="text-xl font-semibold text-gray-600">
             {parameter.name} - 24時間推移
           </DialogTitle>
           <button
@@ -84,13 +143,7 @@ const ParameterTrendDialog: React.FC<ParameterTrendDialogProps> = ({
                   position: "insideLeft",
                 }}
               />
-              <Tooltip
-                formatter={(value: number) => [
-                  `${value.toFixed(2)} ${parameter.unit}`,
-                  parameter.name,
-                ]}
-                labelFormatter={(label) => `時刻: ${label}`}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
 
               {/* 閾値ライン */}
@@ -114,8 +167,31 @@ const ParameterTrendDialog: React.FC<ParameterTrendDialogProps> = ({
                 name={parameter.name}
                 stroke="#2196F3"
                 strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 8 }}
+                dot={(props) => {
+                  const value = props.payload.value;
+                  return (
+                    <circle
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={4}
+                      fill={getDotColor(value)}
+                      stroke="none"
+                    />
+                  );
+                }}
+                activeDot={(props: any) => {
+                  const value = props.payload.value;
+                  return (
+                    <circle
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={8}
+                      fill={getDotColor(value)}
+                      stroke="white"
+                      strokeWidth={2}
+                    />
+                  );
+                }}
               />
             </LineChart>
           </div>

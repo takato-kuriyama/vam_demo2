@@ -104,13 +104,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       </a>
                     </div>
                   </div>
-                  <a
-                    href="#"
+                  <Link
+                    to={ROUTES.ALERT_HISTORY}
                     className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
                   >
                     <Bell className="h-5 w-5" />
                     <span>アラート履歴</span>
-                  </a>
+                  </Link>
                   <a
                     href="#"
                     className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
@@ -135,7 +135,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 </nav>
               </SheetContent>
             </Sheet>
-            <h1 className="text-x1 font-semibold">ホーム</h1>
+            <Link to={ROUTES.HOME} className="text-x1 font-semibold">
+              <span>ホーム</span>
+            </Link>
           </div>
           <Bell className="h-6 w-6" />
         </div>

@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import DashboardEquipment from "./pages/DashboardEquipment";
 import DashboardBreeding from "./pages/DashboardBreeding";
 import BreedingManagement from "./pages/BreedingManagement";
+import AlertHistory from "./pages/AlertHistory";
 
 function App() {
   return (
@@ -19,14 +20,15 @@ function App() {
             <Route path="/homepage" element={<HomePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route
-              path="/dashboardequipment"
+              path="/dashboard_equipment"
               element={<DashboardEquipment />}
             />
-            <Route path="/dashboardbreeding" element={<DashboardBreeding />} />
+            <Route path="/dashboard_breeding" element={<DashboardBreeding />} />
             <Route
-              path="/breedingmanagement"
+              path="/breeding_management"
               element={<BreedingManagement />}
             />
+            <Route path="/alert_history" element={<AlertHistory />} />
           </Routes>
         </MainLayout>
       </div>

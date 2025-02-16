@@ -2,9 +2,10 @@
 export const ROUTES = {
   HOME: "/homepage",
   DASHBOARD: "/dashboard",
-  DASHBOARD_EQUIPMENT: "/dashboardequipment",
-  DASHBOARD_BREEDING: "/dashboardbreeding",
-  BREEDING_MANAGEMENT: "/breedingmanagement",
+  DASHBOARD_EQUIPMENT: "/dashboard_equipment",
+  DASHBOARD_BREEDING: "/dashboard_breeding",
+  BREEDING_MANAGEMENT: "/breeding_management",
+  ALERT_HISTORY: "/alert_history",
 } as const;
 
 export type RouteKeys = keyof typeof ROUTES;
@@ -342,4 +343,39 @@ export type AdditionalBreedingFormField = {
   type: string;
   placeholder?: string;
   initialValue: string;
+};
+
+//アラート履歴サンプルデータ
+export const SAMPLE_ALERT_HISTORY = [
+  {
+    id: 1,
+    date: "2025-02-12 15:00",
+    name: "酸素濃度アラート",
+    line: "Aライン",
+    tank: "A2",
+    description: "閾値19.5%に対して酸素濃度が15%でした。",
+    solution: "・酸素発生装置にに異常がないか確認\n・（入力しておく）",
+    resolved: false,
+  },
+  {
+    id: 2,
+    date: "2025-02-13 09:00",
+    name: "サンプルアラート",
+    line: "サンプルライン",
+    tank: "Sample",
+    description: "入力",
+    solution: "・入力\n・（入力しておく）",
+    resolved: true,
+  },
+];
+
+export type AlertField = {
+  id: number;
+  date: string;
+  name: string;
+  line: string;
+  tank: string;
+  description: string;
+  solution: string;
+  resolved: boolean;
 };
