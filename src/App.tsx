@@ -1,12 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import HomePage from "./pages/HomePage";
-import Dashboard from "./pages/Dashboard";
-import DashboardEquipment from "./pages/DashboardEquipment";
-import DashboardBreeding from "./pages/DashboardBreeding";
-import BreedingManagement from "./pages/BreedingManagement";
-import AlertHistory from "./pages/AlertHistory";
+import { ROUTES_CONFIG } from "./constants/constants";
 
 function App() {
   return (
@@ -17,18 +12,9 @@ function App() {
         </span>
         <MainLayout>
           <Routes>
-            <Route path="/homepage" element={<HomePage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-              path="/dashboard_equipment"
-              element={<DashboardEquipment />}
-            />
-            <Route path="/dashboard_breeding" element={<DashboardBreeding />} />
-            <Route
-              path="/breeding_management"
-              element={<BreedingManagement />}
-            />
-            <Route path="/alert_history" element={<AlertHistory />} />
+            {ROUTES_CONFIG.map(({ id, path, element: Element }) => (
+              <Route key={id} path={path} element={<Element />} />
+            ))}
           </Routes>
         </MainLayout>
       </div>

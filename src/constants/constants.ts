@@ -1,12 +1,106 @@
+import HomePage from "../pages/HomePage";
+import Dashboard from "../pages/Dashboard";
+import DashboardEquipment from "../pages/DashboardEquipment";
+import DashboardBreeding from "../pages/DashboardBreeding";
+import BreedingManagement from "../pages/BreedingManagement";
+import AlertHistory from "../pages/AlertHistory";
+import FixedPointMonitoring from "../pages/FixedPointMonitoring";
+import UserMaster from "../pages/UserMaster";
+import AlertMaster from "../pages/AlertMaster";
+import EquipmentManagement from "../pages/EquipmentManagement";
+import LiveMonitoring from "../pages/LiveMonitoring";
+import RemoteControll from "../pages/RemoteControll";
+
 //Route
 export const ROUTES = {
   HOME: "/homepage",
   DASHBOARD: "/dashboard",
   DASHBOARD_EQUIPMENT: "/dashboard_equipment",
   DASHBOARD_BREEDING: "/dashboard_breeding",
+  EQUIPMENT_MANAGEMENT: "/equipment_management",
   BREEDING_MANAGEMENT: "/breeding_management",
+  LIVE_MONITORING: "/live_monitoring",
+  FIXED_POINT_MONITORING: "/fixed_point_monitoring",
   ALERT_HISTORY: "/alert_history",
+  USER_MASTER: "/user_master",
+  ALERT_MASTER: "/alert_master",
+  REMOTE_CONTROLL: "/remote_controll",
 } as const;
+
+export const ROUTES_CONFIG = [
+  {
+    id: "HOME",
+    path: "/homepage",
+    element: HomePage,
+    displayName: "ホーム",
+  },
+  {
+    id: "DASHBOARD",
+    path: "/dashboard",
+    element: Dashboard,
+    displayName: "ダッシュボード",
+  },
+  {
+    id: "DASHBOARD_EQUIPMENT",
+    path: "/dashboard_equipment",
+    element: DashboardEquipment,
+    displayName: "ろ過槽ダッシュボード",
+  },
+  {
+    id: "DASHBOARD_BREEDING",
+    path: "/dashboard_breeding",
+    element: DashboardBreeding,
+    displayName: "飼育槽ダッシュボード",
+  },
+  {
+    id: "EQUIPMENT_MANAGEMENT",
+    path: "/equipment_management",
+    element: EquipmentManagement,
+    displayName: "設備情報一覧",
+  },
+  {
+    id: "BREEDING_MANAGEMENT",
+    path: "/breeding_management",
+    element: BreedingManagement,
+    displayName: "飼育情報一覧",
+  },
+  {
+    id: "LIVE_MONITORING",
+    path: "/live_monitoring",
+    element: LiveMonitoring,
+    displayName: "LIVE映像",
+  },
+  {
+    id: "FIXED_POINT_MONITORING",
+    path: "/fixed_point_monitoring",
+    element: FixedPointMonitoring,
+    displayName: "定点観測一覧",
+  },
+  {
+    id: "ALERT_HISTORY",
+    path: "/alert_history",
+    element: AlertHistory,
+    displayName: "アラート履歴",
+  },
+  {
+    id: "REMOTE_CONTROLL",
+    path: "/remote_controll",
+    element: RemoteControll,
+    displayName: "制御",
+  },
+  {
+    id: "USER_MASTER",
+    path: "/user_master",
+    element: UserMaster,
+    displayName: "ユーザーマスタ",
+  },
+  {
+    id: "ALERT_MASTER",
+    path: "/alert_master",
+    element: AlertMaster,
+    displayName: "アラートマスタ",
+  },
+] as const;
 
 export type RouteKeys = keyof typeof ROUTES;
 export type RoutePaths = (typeof ROUTES)[RouteKeys];
@@ -379,3 +473,150 @@ export type AlertField = {
   solution: string;
   resolved: boolean;
 };
+
+//定点観測サンプルデータ
+export const SAMPLE_FIXED_POINT_DATA: MonitoringDataField[] = [
+  {
+    id: "1",
+    date: "2025/02/15 9:00",
+    line: "Aライン",
+    filterSystem: {
+      chlorineBefore: 3.8,
+      chlorineAfter: 0.0,
+      ph: 7.5,
+      flowRate: 30.0,
+      current: 27.0,
+      polarity: "A",
+    },
+    breedingTanks: [
+      { tankId: "A-1", oxygenSaturation: 80, ph: 7.1, temperature: 24.2 },
+      { tankId: "A-2", oxygenSaturation: 84, ph: 9.3, temperature: 26.8 },
+      { tankId: "A-3", oxygenSaturation: 72, ph: 6.8, temperature: 26.0 },
+      { tankId: "A-4", oxygenSaturation: 95, ph: 7.5, temperature: 25.2 },
+      { tankId: "A-5", oxygenSaturation: 54, ph: 7.2, temperature: 29.1 },
+    ],
+  },
+  {
+    id: "2",
+    date: "2025/02/15 9:00",
+    line: "Bライン",
+    filterSystem: {
+      chlorineBefore: 3.8,
+      chlorineAfter: 0.0,
+      ph: 7.5,
+      flowRate: 30.0,
+      current: 27.0,
+      polarity: "A",
+    },
+    breedingTanks: [
+      { tankId: "A-1", oxygenSaturation: 80, ph: 7.1, temperature: 24.2 },
+      { tankId: "A-2", oxygenSaturation: 84, ph: 9.3, temperature: 26.8 },
+      { tankId: "A-3", oxygenSaturation: 72, ph: 6.8, temperature: 26.0 },
+      { tankId: "A-4", oxygenSaturation: 95, ph: 7.5, temperature: 25.2 },
+      { tankId: "A-5", oxygenSaturation: 54, ph: 7.2, temperature: 29.1 },
+    ],
+  },
+];
+
+export interface MonitoringDataField {
+  id: string;
+  date: string;
+  line: string;
+  filterSystem: {
+    chlorineBefore: number;
+    chlorineAfter: number;
+    ph: number;
+    flowRate: number;
+    current: number;
+    polarity: string;
+  };
+  breedingTanks: {
+    tankId: string;
+    oxygenSaturation: number;
+    ph: number;
+    temperature: number;
+  }[];
+}
+
+//ユーザーマスタサンプルデータ
+export const SAMPLE_USER_DATA: UserDataField[] = [
+  {
+    id: 1,
+    name: "サンプル太郎",
+    password: "●●●●●",
+    mail: "sample@sample.com",
+    authority: "一般",
+  },
+  {
+    id: 2,
+    name: "TEST",
+    password: "●●●●●",
+    mail: "test@test.com",
+    authority: "一般",
+  },
+];
+
+export interface UserDataField {
+  id: number;
+  name: string;
+  password: string;
+  mail: string;
+  authority: string;
+}
+
+//アラートマスタサンプルデータ
+export const SAMPLE_ALERT_MASTER_DATA: AlertMasterField[] = [
+  {
+    id: 1,
+    name: "残留塩素異常アラート",
+    targetData: "res_cl",
+    thresholdMin: 0.5,
+    thresholdMax: 3.0,
+    dangerMin: 0.5,
+    dangerMax: 3.0,
+    duplicateControl: "1h",
+    solution:
+      "・残留塩素計の値を確認してください\n・装置の動作状況を確認してください",
+  },
+  {
+    id: 2,
+    name: "アンモニア異常アラート",
+    targetData: "ammonia",
+    thresholdMin: 0.0,
+    thresholdMax: 2.0,
+    dangerMin: 0.0,
+    dangerMax: 1.0,
+    duplicateControl: "3h",
+    solution: "・アンモニア濃度を確認してください\n・給餌量を調整してください",
+  },
+];
+
+// アラートマスタのデータ型
+export interface AlertMasterField {
+  id: number;
+  name: string;
+  targetData: string;
+  thresholdMin: number;
+  thresholdMax: number;
+  dangerMin: number;
+  dangerMax: number;
+  duplicateControl: string;
+  solution: string;
+}
+
+// アラートの対象データ選択肢
+export const ALERT_TARGET_DATA = [
+  { id: "res_cl", name: "残留塩素" },
+  { id: "ammonia", name: "アンモニア" },
+  { id: "oxygen", name: "酸素濃度" },
+  { id: "ph", name: "pH" },
+] as const;
+
+// 重複アラート抑制の選択肢
+export const ALERT_DUPLICATE_CONTROLS = [
+  { id: "1h", name: "重複アラートを1時間抑制" },
+  { id: "3h", name: "重複アラートを3時間抑制" },
+  { id: "6h", name: "重複アラートを6時間抑制" },
+  { id: "12h", name: "重複アラートを12時間抑制" },
+  { id: "24h", name: "重複アラートを24時間抑制" },
+] as const;

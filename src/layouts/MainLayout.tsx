@@ -82,26 +82,35 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <span>ダッシュボード</span>
                   </Link>
                   <div className="flex flex-col">
-                    <div className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg">
+                    <div className="flex items-center space-x-2 p-2 rounded-lg">
                       <Monitor className="h-5 w-5" />
                       <span>モニタリング</span>
                     </div>
                     <div className="pl-10 flex flex-col">
-                      <a href="#" className="p-1 hover:bg-gray-100 rounded-lg">
-                        設備情報一覧
-                      </a>
+                      <Link
+                        to={ROUTES.EQUIPMENT_MANAGEMENT}
+                        className="p-1 hover:bg-gray-100 rounded-lg"
+                      >
+                        設備情報管理
+                      </Link>
                       <Link
                         to={ROUTES.BREEDING_MANAGEMENT}
                         className="p-1 hover:bg-gray-100 rounded-lg"
                       >
-                        飼育情報一覧
+                        飼育情報管理
                       </Link>
-                      <a href="#" className="p-1 hover:bg-gray-100 rounded-lg">
+                      <Link
+                        to={ROUTES.LIVE_MONITORING}
+                        className="p-1 hover:bg-gray-100 rounded-lg"
+                      >
                         LIVE映像
-                      </a>
-                      <a href="#" className="p-1 hover:bg-gray-100 rounded-lg">
-                        定点観測
-                      </a>
+                      </Link>
+                      <Link
+                        to={ROUTES.FIXED_POINT_MONITORING}
+                        className="p-1 hover:bg-gray-100 rounded-lg"
+                      >
+                        定点観測一覧
+                      </Link>
                     </div>
                   </div>
                   <Link
@@ -111,25 +120,31 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <Bell className="h-5 w-5" />
                     <span>アラート履歴</span>
                   </Link>
-                  <a
-                    href="#"
+                  <Link
+                    to={ROUTES.REMOTE_CONTROLL}
                     className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
                   >
                     <Settings className="h-5 w-5" />
                     <span>制御</span>
-                  </a>
+                  </Link>
                   <div className="flex flex-col">
-                    <div className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg">
+                    <div className="flex items-center space-x-2 p-2 rounded-lg">
                       <FileText className="h-5 w-5" />
                       <span>マスタ管理</span>
                     </div>
                     <div className="pl-10 flex flex-col space-y-0">
-                      <a href="#" className="p-1 hover:bg-gray-100 rounded-lg">
-                        ユーザーマスタ
-                      </a>
-                      <a href="#" className="p-1 hover:bg-gray-100 rounded-lg">
-                        アラートマスタ
-                      </a>
+                      <Link
+                        to={ROUTES.USER_MASTER}
+                        className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
+                      >
+                        <span>ユーザーマスタ</span>
+                      </Link>
+                      <Link
+                        to={ROUTES.ALERT_MASTER}
+                        className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
+                      >
+                        <span>アラートマスタ</span>
+                      </Link>
                     </div>
                   </div>
                 </nav>
