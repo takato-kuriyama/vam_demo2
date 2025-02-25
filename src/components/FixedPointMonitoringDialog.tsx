@@ -29,7 +29,7 @@ export const FixedPointMonitoringDialog: React.FC<
         <div className="space-y-6 p-4">
           {/* ろ過システムデータ */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">ろ過槽データ</h3>
+            <h3 className="text-lg font-semibold mb-4">ろ過部データ</h3>
             <table className="w-full border-collapse">
               <thead>
                 <tr>
@@ -51,7 +51,7 @@ export const FixedPointMonitoringDialog: React.FC<
                 </tr>
                 <tr>
                   <td className="border p-2">アンモニア</td>
-                  <td className="border p-2 font-semibold bg-red-300">
+                  <td className="border p-2 font-semibold bg-red-200">
                     0.7ppm
                   </td>
                   <td className="border p-2">0.0～0.5ppm</td>
@@ -70,6 +70,11 @@ export const FixedPointMonitoringDialog: React.FC<
                   <td className="border p-2">電解電流値</td>
                   <td className="border p-2">27.0A</td>
                   <td className="border p-2">24.0～30.0A</td>
+                </tr>
+                <tr>
+                  <td className="border p-2">水温</td>
+                  <td className="border p-2">26.2℃</td>
+                  <td className="border p-2">24.0～27.0℃</td>
                 </tr>
                 <tr>
                   <td className="border p-2">電解極性</td>
@@ -101,9 +106,11 @@ export const FixedPointMonitoringDialog: React.FC<
                   <td className="border p-2">酸素飽和度</td>
                   <td className="border p-2">80%</td>
                   <td className="border p-2">84%</td>
-                  <td className="border p-2 bg-yellow-300">72%</td>
+                  <td className="border p-2 font-semibold bg-yellow-200">
+                    72%
+                  </td>
                   <td className="border p-2">95%</td>
-                  <td className="border p-2 bg-red-300">54%</td>
+                  <td className="border p-2 font-semibold bg-red-200">54%</td>
                   <td className="border p-2">70%</td>
                   <td className="border p-2">100%</td>
                 </tr>
@@ -119,11 +126,13 @@ export const FixedPointMonitoringDialog: React.FC<
                 </tr>
                 <tr>
                   <td className="border p-2">水温</td>
-                  <td className="border p-2 bg-red-300">24.2℃</td>
+                  <td className="border p-2 font-semibold bg-red-200">24.2℃</td>
                   <td className="border p-2">26.8℃</td>
                   <td className="border p-2">26.0℃</td>
-                  <td className="border p-2 bg-yellow-300">25.2℃</td>
-                  <td className="border p-2 bg-red-300">29.1℃</td>
+                  <td className="border p-2 font-semibold bg-yellow-200">
+                    25.2℃
+                  </td>
+                  <td className="border p-2 font-semibold bg-red-200">29.1℃</td>
                   <td className="border p-2">25.0℃</td>
                   <td className="border p-2">27.0℃</td>
                 </tr>

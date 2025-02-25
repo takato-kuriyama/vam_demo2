@@ -1,66 +1,187 @@
-import { Card, CardContent } from "../components/card";
-import {
-  SAMPLE_FIXED_POINT_DATA,
-  MonitoringDataField,
-} from "../constants/constants";
 import { useState } from "react";
+import { Card } from "../components/card";
+import { Tabs, TabsList, TabsTrigger } from "../components/tabs";
 import { Button } from "../components/button";
-import { FixedPointMonitoringDialog } from "../components/FixedPointMonitoringDialog";
-import { ExternalLink } from "lucide-react";
+import { Input } from "../components/input";
+import { EQ_TANKS, PAGE_TITLES } from "../constants/constants";
+import { PageContainer } from "../components/PageContainer";
 
-const RemoteControll = () => {
-  const [selectedFixedData, setSelectedFixedData] =
-    useState<MonitoringDataField | null>(null);
-  const [fixedDatas] = useState(SAMPLE_FIXED_POINT_DATA);
+const RemoteControl = () => {
+  const [selectedTank, setSelectedTank] = useState(EQ_TANKS[0].id);
+  const [controlValues, setControlValues] = useState({
+    filterSystem: "ON",
+    current: 1.0,
+    feedAmount: 100,
+    polarity: "A",
+  });
+
+  const handleValueChange = (paramId: string, value: string | number) => {
+    setControlValues((prev) => ({
+      ...prev,
+      [paramId]: value,
+    }));
+  };
+
+  const handleToggle = (paramId: string, currentValue: string) => {
+    const nextValue =
+      paramId === "filterSystem"
+        ? currentValue === "ON"
+          ? "OFF"
+          : "ON"
+        : currentValue === "A"
+        ? "B"
+        : "A";
+
+    setControlValues((prev) => ({
+      ...prev,
+      [paramId]: nextValue,
+    }));
+  };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">制御</h1>
-
-        <div className="grid grid-cols-1 gap-3">
-          {fixedDatas.map((fixedData) => (
-            <Card
-              key={fixedData.id}
-              className="h-full transition-all duration-300 hover:shadow-lg hover:scale-102 border-none bg-white rounded-xl"
-            >
-              <CardContent
-                onClick={() => setSelectedFixedData(fixedData)}
-                className="p-4"
+    <PageContainer title={PAGE_TITLES.REMOTE_CONTROLL}>
+      {/* ライン選択タブ */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6 p-1.5">
+        <Tabs
+          defaultValue={EQ_TANKS[0].id}
+          value={selectedTank}
+          className="w-full"
+        >
+          <TabsList className="flex justify-start w-full bg-transparent gap-1">
+            {EQ_TANKS.map((tank) => (
+              <TabsTrigger
+                key={tank.id}
+                value={tank.id}
+                onClick={() => setSelectedTank(tank.id)}
+                className="data-[state=active]:bg-blue-100 px-4 py-2 rounded-xl shadow bg-gray-50"
               >
-                <div className="flex justify-between">
-                  <div className="flex items-center space-x-4">
-                    <p className="font-semibold text-lg flex">
-                      {fixedData.date}
-                    </p>
-                    <p className="font-semibold text-lg flex">
-                      {fixedData.line}：定点観測
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setSelectedFixedData(fixedData)}
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50"
-                  >
-                    詳細
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                {tank.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
 
-      {selectedFixedData && (
-        <FixedPointMonitoringDialog
-          isOpen={!!selectedFixedData}
-          onClose={() => setSelectedFixedData(null)}
-          data={selectedFixedData}
-        />
-      )}
-    </div>
+      {/* 制御パネルグリッド */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* ろ過装置 */}
+        <Card className="bg-white border-gray-100 shadow-sm">
+          <div className="p-5">
+            <div className="mb-3">
+              <h3 className="text-base font-medium text-slate-700">ろ過装置</h3>
+            </div>
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="text-5xl font-bold text-slate-800">
+                {controlValues.filterSystem}
+              </div>
+              <Button
+                onClick={() =>
+                  handleToggle("filterSystem", controlValues.filterSystem)
+                }
+                variant="outline"
+                className="w-full max-w-[200px] bg-white hover:bg-slate-50"
+              >
+                {controlValues.filterSystem === "ON" ? "OFFにする" : "ONにする"}
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {/* 電流値 */}
+        <Card className="bg-white border-gray-100 shadow-sm">
+          <div className="p-5">
+            <div className="mb-3">
+              <h3 className="text-base font-medium text-slate-700">電流値</h3>
+            </div>
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="flex items-baseline">
+                <span className="text-5xl font-bold text-slate-800">
+                  {controlValues.current}
+                </span>
+                <span className="ml-2 text-xl text-slate-600">A</span>
+              </div>
+              <div className="flex w-full max-w-[200px] space-x-2">
+                <Input
+                  type="number"
+                  min={0}
+                  max={10}
+                  step={0.1}
+                  value={controlValues.current}
+                  onChange={(e) =>
+                    handleValueChange("current", parseFloat(e.target.value))
+                  }
+                  className="text-center h-10"
+                />
+                <Button
+                  variant="outline"
+                  className="bg-white hover:bg-slate-50 flex-shrink-0 h-10"
+                >
+                  変更
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* 給餌量 */}
+        <Card className="bg-white border-gray-100 shadow-sm">
+          <div className="p-5">
+            <div className="mb-3">
+              <h3 className="text-base font-medium text-slate-700">給餌量</h3>
+            </div>
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="flex items-baseline">
+                <span className="text-5xl font-bold text-slate-800">
+                  {controlValues.feedAmount}
+                </span>
+                <span className="ml-2 text-xl text-slate-600">g</span>
+              </div>
+              <div className="flex w-full max-w-[200px] space-x-2">
+                <Input
+                  type="number"
+                  min={0}
+                  max={1000}
+                  step={10}
+                  value={controlValues.feedAmount}
+                  onChange={(e) =>
+                    handleValueChange("feedAmount", parseFloat(e.target.value))
+                  }
+                  className="text-center h-10"
+                />
+                <Button
+                  variant="outline"
+                  className="bg-white hover:bg-slate-50 flex-shrink-0 h-10"
+                >
+                  変更
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* 電解極性 */}
+        <Card className="bg-white border-gray-100 shadow-sm">
+          <div className="p-5">
+            <div className="mb-3">
+              <h3 className="text-base font-medium text-slate-700">電解極性</h3>
+            </div>
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="text-5xl font-bold text-slate-800">
+                {controlValues.polarity}
+              </div>
+              <Button
+                onClick={() => handleToggle("polarity", controlValues.polarity)}
+                variant="outline"
+                className="w-full max-w-[200px] bg-white hover:bg-slate-50"
+              >
+                {controlValues.polarity === "A" ? "Bにする" : "Aにする"}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </PageContainer>
   );
 };
 
-export default RemoteControll;
+export default RemoteControl;

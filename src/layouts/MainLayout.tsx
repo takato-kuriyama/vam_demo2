@@ -1,17 +1,13 @@
-//import { useRef } from "react";
 import { useState } from "react";
-import { ROUTES } from "../constants/constants";
+import {
+  ROUTES,
+  COLORS,
+  HEADER_MENU_ITEMS,
+  SIDE_MENU_ITEMS,
+} from "../constants/constants";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent } from "../components/sheet";
-import {
-  Bell,
-  Menu,
-  Home,
-  LayoutDashboard,
-  Monitor,
-  Settings,
-  FileText,
-} from "lucide-react";
+import { AlertTriangle, Menu, ArrowRight } from "lucide-react";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -21,143 +17,100 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-    // const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    // const shouldCloseRef = useRef(false);
+  };
 
-    // const handleMouseEnter = () => {
-    //   if (timeoutRef.current) {
-    //     clearTimeout(timeoutRef.current);
-    //     timeoutRef.current = null;
-    //   }
-    //   shouldCloseRef.current = false;
-    //   if (!isOpen) {
-    //     setIsOpen(true);
-    //   }
-    // };
+  const renderMenuItem = (item: (typeof SIDE_MENU_ITEMS)[number]) => {
+    if ("subItems" in item) {
+      return (
+        <div key={item.id} className="flex flex-col">
+          <div className="flex items-center space-x-2 p-2 rounded-lg">
+            {item.icon && <item.icon className="h-5 w-5" />}
+            <span>{item.label}</span>
+          </div>
+          <div className="pl-10 flex flex-col">
+            {item.subItems.map((subItem) => (
+              <Link
+                key={subItem.id}
+                to={subItem.path}
+                className={`p-1 ${COLORS.hover.primary} rounded-lg`}
+                onClick={() => setIsOpen(false)}
+              >
+                {subItem.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      );
+    }
 
-    // const handleMouseLeave = () => {
-    //   shouldCloseRef.current = true;
-    //   timeoutRef.current = setTimeout(() => {
-    //     if (shouldCloseRef.current) {
-    //       setIsOpen(false);
-    //     }
-    //   }, 400);
+    return (
+      <Link
+        key={item.id}
+        to={item.path}
+        className={`flex items-center space-x-2 p-2 ${COLORS.hover.primary} rounded-lg`}
+        onClick={() => setIsOpen(false)}
+      >
+        {item.icon && <item.icon className="h-5 w-5" />}
+        <span>{item.label}</span>
+      </Link>
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className={`min-h-screen ${COLORS.bg.primary}`}>
       {/* ヘッダー */}
-      <header className="bg-white border-b shadow-sm">
+      <header
+        className={`${COLORS.bg.primary} border-b ${COLORS.border.primary} shadow-sm sticky top-0 z-50`}
+      >
         <div className="flex items-center justify-between p-4 max-w-7xl mx-auto">
           <div className="flex items-center space-x-4">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <div>
-                <button
-                  onClick={toggleMenu}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <Menu className="h-6 w-6" />
-                </button>
-              </div>
+            {/* <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <button
+                onClick={toggleMenu}
+                className={`p-2 ${COLORS.hover.primary} rounded-full transition-colors`}
+              >
+                <Menu className="h-6 w-6" />
+              </button>
               <SheetContent
                 side="left"
-                className="w-64 bg-white transform transition-all duration-300 ease-in-out"
+                className={`w-64 ${COLORS.bg.primary} transform transition-all duration-300 ease-in-out`}
               >
-                <nav
-                  className="flex flex-col pt-3"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Link
-                    to={ROUTES.HOME}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
-                  >
-                    <Home className="h-5 w-5" />
-                    <span>ホーム</span>
-                  </Link>
-                  <Link
-                    to={ROUTES.DASHBOARD}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
-                  >
-                    <LayoutDashboard className="h-5 w-5" />
-                    <span>ダッシュボード</span>
-                  </Link>
-                  <div className="flex flex-col">
-                    <div className="flex items-center space-x-2 p-2 rounded-lg">
-                      <Monitor className="h-5 w-5" />
-                      <span>モニタリング</span>
-                    </div>
-                    <div className="pl-10 flex flex-col">
-                      <Link
-                        to={ROUTES.EQUIPMENT_MANAGEMENT}
-                        className="p-1 hover:bg-gray-100 rounded-lg"
-                      >
-                        設備情報管理
-                      </Link>
-                      <Link
-                        to={ROUTES.BREEDING_MANAGEMENT}
-                        className="p-1 hover:bg-gray-100 rounded-lg"
-                      >
-                        飼育情報管理
-                      </Link>
-                      <Link
-                        to={ROUTES.LIVE_MONITORING}
-                        className="p-1 hover:bg-gray-100 rounded-lg"
-                      >
-                        LIVE映像
-                      </Link>
-                      <Link
-                        to={ROUTES.FIXED_POINT_MONITORING}
-                        className="p-1 hover:bg-gray-100 rounded-lg"
-                      >
-                        定点観測一覧
-                      </Link>
-                    </div>
-                  </div>
-                  <Link
-                    to={ROUTES.ALERT_HISTORY}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
-                  >
-                    <Bell className="h-5 w-5" />
-                    <span>アラート履歴</span>
-                  </Link>
-                  <Link
-                    to={ROUTES.REMOTE_CONTROLL}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span>制御</span>
-                  </Link>
-                  <div className="flex flex-col">
-                    <div className="flex items-center space-x-2 p-2 rounded-lg">
-                      <FileText className="h-5 w-5" />
-                      <span>マスタ管理</span>
-                    </div>
-                    <div className="pl-10 flex flex-col space-y-0">
-                      <Link
-                        to={ROUTES.USER_MASTER}
-                        className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
-                      >
-                        <span>ユーザーマスタ</span>
-                      </Link>
-                      <Link
-                        to={ROUTES.ALERT_MASTER}
-                        className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
-                      >
-                        <span>アラートマスタ</span>
-                      </Link>
-                    </div>
-                  </div>
+                <nav className="flex flex-col pt-3">
+                  {SIDE_MENU_ITEMS.map(renderMenuItem)}
                 </nav>
               </SheetContent>
-            </Sheet>
-            <Link to={ROUTES.HOME} className="text-x1 font-semibold">
-              <span>ホーム</span>
-            </Link>
+            </Sheet> */}
+
+            {/* 固定メニュー */}
+            <div className="flex flex-col space-y-2">
+              <div className="hidden md:flex items-center gap-2">
+                {HEADER_MENU_ITEMS.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    className={`flex flex-col items-center p-2 ${COLORS.hover.primary} rounded-lg transition-colors`}
+                  >
+                    {item.icon && <item.icon className="h-5 w-5 mb-1" />}
+                    <span className="text-xs font-medium">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+              <div
+                className={`w-full ${COLORS.bg.error3} text-lg rounded-xl border ${COLORS.border.primary}`}
+              >
+                <Link
+                  className={`font-bold text-yellow-200 flex space-x-5 items-center justify-center hover:text-yellow-500`}
+                  to={ROUTES.ALERT_HISTORY}
+                >
+                  <AlertTriangle className="h-5 w-5" />
+                  <span>2025-02-12 15:00 酸素濃度アラート　AラインA2</span>
+                </Link>
+              </div>
+            </div>
           </div>
-          <Bell className="h-6 w-6" />
         </div>
       </header>
-      <main className="p-4 max-w-7x1 mx-auto">{children}</main>
+      <main className="p-4 max-w-7xl mx-auto">{children}</main>
     </div>
   );
 };

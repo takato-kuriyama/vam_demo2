@@ -1,0 +1,161 @@
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "../components/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/dialog";
+import { Input } from "../components/input";
+import { Label } from "../components/label";
+import { Button } from "../components/button";
+import { Settings, Search } from "lucide-react";
+import { COLORS, PAGE_TITLES } from "../constants/constants";
+import { PageContainer } from "../components/PageContainer";
+
+// ろ過槽データの型定義
+interface FilterLine {
+  id: string;
+  name: string;
+}
+
+const LineMaster = () => {
+  // ろ過槽の初期データ
+  const [lines, setLines] = useState<FilterLine[]>([
+    { id: "A", name: "Aライン" },
+    { id: "B", name: "Bライン" },
+    { id: "C", name: "Cライン" },
+  ]);
+
+  const [selectedLine, setSelectedLine] = useState<FilterLine | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // 検索機能の実装
+  const filteredLines = lines.filter((line) =>
+    line.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <PageContainer title={PAGE_TITLES.LINE_MASTER}>
+      {/* 検索バー */}
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Input
+          className="pl-10"
+          placeholder="ろ過槽が検索できます"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* ろ過槽一覧 */}
+      <div className="grid grid-cols-1 gap-3">
+        {filteredLines.map((line) => (
+          <Card
+            key={line.id}
+            className={`transition-all duration-300 hover:shadow-lg hover:scale-102 ${COLORS.border.primary} rounded-xl`}
+          >
+            <CardContent className="p-4">
+              <div className="flex justify-between items-center">
+                <div className="space-y-1">
+                  <p className="font-semibold text-lg">{line.name}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setSelectedLine(line);
+                    setIsEditDialogOpen(true);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50"
+                >
+                  <Settings className="h-4 w-4" />
+                  編集
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* 編集ダイアログ */}
+      <FilterLineEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => {
+          setIsEditDialogOpen(false);
+          setSelectedLine(null);
+        }}
+        line={selectedLine}
+        onUpdate={(updatedName) => {
+          setLines(
+            lines.map((l) =>
+              l.id === selectedLine?.id ? { ...l, name: updatedName } : l
+            )
+          );
+          setIsEditDialogOpen(false);
+          setSelectedLine(null);
+        }}
+      />
+    </PageContainer>
+  );
+};
+
+// 編集ダイアログコンポーネント
+interface FilterLineEditDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  line: FilterLine | null;
+  onUpdate: (name: string) => void;
+}
+
+const FilterLineEditDialog: React.FC<FilterLineEditDialogProps> = ({
+  isOpen,
+  onClose,
+  line,
+  onUpdate,
+}) => {
+  const [lineName, setLineName] = useState("");
+
+  // 選択されたラインが変更されたら名前を更新
+  useEffect(() => {
+    if (line) {
+      setLineName(line.name);
+    }
+  }, [line]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdate(lineName);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md bg-white">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">ろ過槽編集</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">ライン名</Label>
+            <Input
+              id="name"
+              value={lineName}
+              onChange={(e) => setLineName(e.target.value)}
+              placeholder="ライン名を入力"
+            />
+          </div>
+
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              キャンセル
+            </Button>
+            <Button type="submit">保存</Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default LineMaster;

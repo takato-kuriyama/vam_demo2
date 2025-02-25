@@ -7,9 +7,21 @@ import AlertHistory from "../pages/AlertHistory";
 import FixedPointMonitoring from "../pages/FixedPointMonitoring";
 import UserMaster from "../pages/UserMaster";
 import AlertMaster from "../pages/AlertMaster";
+import TankMaster from "../pages/TankMaster";
+import LineMaster from "../pages/LineMaster";
 import EquipmentManagement from "../pages/EquipmentManagement";
 import LiveMonitoring from "../pages/LiveMonitoring";
 import RemoteControll from "../pages/RemoteControll";
+import MasterIndex from "../pages/MasterIndex";
+import {
+  Bell,
+  Home,
+  LayoutDashboard,
+  Monitor,
+  Settings,
+  FileText,
+  FileEdit,
+} from "lucide-react";
 
 //Route
 export const ROUTES = {
@@ -22,8 +34,11 @@ export const ROUTES = {
   LIVE_MONITORING: "/live_monitoring",
   FIXED_POINT_MONITORING: "/fixed_point_monitoring",
   ALERT_HISTORY: "/alert_history",
+  MASTER_INDEX: "/master_index",
   USER_MASTER: "/user_master",
   ALERT_MASTER: "/alert_master",
+  TANK_MASTER: "/tank_master",
+  LINE_MASTER: "/line_master",
   REMOTE_CONTROLL: "/remote_controll",
 } as const;
 
@@ -44,7 +59,7 @@ export const ROUTES_CONFIG = [
     id: "DASHBOARD_EQUIPMENT",
     path: "/dashboard_equipment",
     element: DashboardEquipment,
-    displayName: "ろ過槽ダッシュボード",
+    displayName: "ろ過部ダッシュボード",
   },
   {
     id: "DASHBOARD_BREEDING",
@@ -56,13 +71,13 @@ export const ROUTES_CONFIG = [
     id: "EQUIPMENT_MANAGEMENT",
     path: "/equipment_management",
     element: EquipmentManagement,
-    displayName: "設備情報一覧",
+    displayName: "データ一覧",
   },
   {
     id: "BREEDING_MANAGEMENT",
     path: "/breeding_management",
     element: BreedingManagement,
-    displayName: "飼育情報一覧",
+    displayName: "データ入力",
   },
   {
     id: "LIVE_MONITORING",
@@ -89,6 +104,12 @@ export const ROUTES_CONFIG = [
     displayName: "制御",
   },
   {
+    id: "MASTER_INDEX",
+    path: "/master_index",
+    element: MasterIndex,
+    displayName: "マスタ管理",
+  },
+  {
     id: "USER_MASTER",
     path: "/user_master",
     element: UserMaster,
@@ -100,16 +121,201 @@ export const ROUTES_CONFIG = [
     element: AlertMaster,
     displayName: "アラートマスタ",
   },
+  {
+    id: "LINE_MASTER",
+    path: "/line_master",
+    element: LineMaster,
+    displayName: "ろ過部マスタ",
+  },
+  {
+    id: "TANK_MASTER",
+    path: "/tank_master",
+    element: TankMaster,
+    displayName: "飼育槽マスタ",
+  },
 ] as const;
 
 export type RouteKeys = keyof typeof ROUTES;
 export type RoutePaths = (typeof ROUTES)[RouteKeys];
 
+//ページタイトル
+export const PAGE_TITLES = {
+  HOME: "ホーム",
+  DASHBOARD: "ダッシュボード一覧",
+  DASHBOARD_EQUIPMENT: "ろ過部ダッシュボード",
+  DASHBOARD_BREEDING: "飼育槽ダッシュボード",
+  EQUIPMENT_MANAGEMENT: "データ一覧",
+  BREEDING_MANAGEMENT: "データ入力",
+  ALERT_HISTORY: "アラート履歴一覧",
+  MASTER_INDEX: "マスタ管理",
+  ALERT_MASTER: "アラートマスタ",
+  USER_MASTER: "ユーザーマスタ",
+  TANK_MASTER: "飼育槽マスタ",
+  LINE_MASTER: "ろ過部マスタ",
+  FIXED_POINT: "定点観測一覧",
+  LIVE_MONITORING: "LIVE映像",
+  REMOTE_CONTROLL: "制御パネル",
+} as const;
+
+//Colors
+export const COLORS = {
+  // 背景色
+  bg: {
+    primary: "bg-white",
+    secondary: "bg-gray-50",
+    tertiary: "bg-blue-50",
+    error1: "bg-red-100",
+    error2: "bg-red-200",
+    error3: "bg-red-600",
+    warning1: "bg-yellow-100",
+    warning2: "bg-yellow-200",
+    success: "bg-emerald-100",
+  },
+  // テキスト色
+  text: {
+    primary: "text-gray-800",
+    secondary: "text-gray-600",
+    tertiary: "text-gray-500",
+    error: "text-red-500",
+    warning: "text-yellow-500",
+    success: "text-emerald-500",
+  },
+  // ボーダー色
+  border: {
+    primary: "border-gray-100",
+    secondary: "border-gray-300",
+    error: "border-red-200",
+    warning: "border-yellow-200",
+    success: "border-emerald-200",
+  },
+  // ホバー色
+  hover: {
+    primary: "hover:bg-gray-50",
+    secondary: "hover:bg-gray-100",
+  },
+} as const;
+
+export type ColorKeys = keyof typeof COLORS;
+
+//メニューバー用
+export const HEADER_MENU_ITEMS = [
+  { id: "home", path: ROUTES.HOME, label: "ホーム", icon: Home },
+  {
+    id: "dashboard",
+    path: ROUTES.DASHBOARD,
+    label: "ダッシュボード",
+    icon: LayoutDashboard,
+  },
+  {
+    id: "breeding",
+    path: ROUTES.BREEDING_MANAGEMENT,
+    label: "データ入力",
+    icon: FileEdit,
+  },
+  {
+    id: "equipment",
+    path: ROUTES.EQUIPMENT_MANAGEMENT,
+    label: "データ一覧",
+    icon: FileText,
+  },
+  {
+    id: "live",
+    path: ROUTES.LIVE_MONITORING,
+    label: "LIVE映像",
+    icon: Monitor,
+  },
+  {
+    id: "fixed",
+    path: ROUTES.FIXED_POINT_MONITORING,
+    label: "定点観測一覧",
+    icon: Monitor,
+  },
+  {
+    id: "alert",
+    path: ROUTES.ALERT_HISTORY,
+    label: "アラート履歴",
+    icon: Bell,
+  },
+  {
+    id: "remoteControll",
+    path: ROUTES.REMOTE_CONTROLL,
+    label: "制御",
+    icon: Settings,
+  },
+  {
+    id: "masterIndex",
+    path: ROUTES.MASTER_INDEX,
+    label: "マスタ管理",
+    icon: FileText,
+  },
+] as const;
+
+export const SIDE_MENU_ITEMS = [
+  {
+    id: "home",
+    path: ROUTES.HOME,
+    label: "ホーム",
+    icon: Home,
+  },
+  {
+    id: "dashboard",
+    path: ROUTES.DASHBOARD,
+    label: "ダッシュボード",
+    icon: LayoutDashboard,
+  },
+  {
+    id: "monitoring",
+    label: "モニタリング",
+    icon: Monitor,
+    subItems: [
+      {
+        id: "equipment",
+        path: ROUTES.EQUIPMENT_MANAGEMENT,
+        label: "データ一覧",
+      },
+      {
+        id: "breeding",
+        path: ROUTES.BREEDING_MANAGEMENT,
+        label: "データ入力",
+      },
+      { id: "live", path: ROUTES.LIVE_MONITORING, label: "LIVE映像" },
+      {
+        id: "fixed",
+        path: ROUTES.FIXED_POINT_MONITORING,
+        label: "定点観測一覧",
+      },
+    ],
+  },
+  {
+    id: "alert",
+    path: ROUTES.ALERT_HISTORY,
+    label: "アラート履歴",
+    icon: Bell,
+  },
+  {
+    id: "control",
+    path: ROUTES.REMOTE_CONTROLL,
+    label: "制御",
+    icon: Settings,
+  },
+  {
+    id: "master",
+    label: "マスタ管理",
+    icon: FileText,
+    subItems: [
+      { id: "user", path: ROUTES.USER_MASTER, label: "ユーザーマスタ" },
+      { id: "alert", path: ROUTES.ALERT_MASTER, label: "アラートマスタ" },
+      { id: "line", path: ROUTES.LINE_MASTER, label: "ろ過部マスタ" },
+      { id: "tank", path: ROUTES.TANK_MASTER, label: "飼育槽マスタ" },
+    ],
+  },
+] as const;
+
 //Dashboards
 export const DASHBOARDS: Dashboard[] = [
   {
     id: "01",
-    name: "ろ過槽ダッシュボード",
+    name: "ろ過部ダッシュボード",
     path: ROUTES.DASHBOARD_EQUIPMENT,
   },
   {
@@ -147,14 +353,14 @@ export const PARAM_UNITS = {
 export type ParamUnitKeys = keyof typeof PARAM_UNITS;
 export type ParamUnitValues = (typeof PARAM_UNITS)[ParamUnitKeys];
 
-//ろ過槽の初期サンプルデータ
+//ろ過部の初期サンプルデータ
 export const SAMPLE_FILTER_DATA: SampleFilterData = {
   resClIdx1: 7.05,
   resClIdx2: 7.01,
   ammonia: 0.45,
   current: 153.0,
   flowRate: 30.53,
-  polarity: "Positive",
+  polarity: "A",
 } as const;
 
 export type SampleFilterData = {
@@ -163,10 +369,10 @@ export type SampleFilterData = {
   ammonia: number;
   current: number;
   flowRate: number;
-  polarity: "Positive" | "Negative";
+  polarity: "A" | "B";
 };
 
-// ろ過槽のパラメータ定義
+// ろ過部のパラメータ定義
 export const FILTER_PARAMETERS: FilterParameter[] = [
   {
     id: "resClIdx1",
@@ -236,8 +442,8 @@ export const STATUS_DISPLAY: Record<
   { text: string; color: string }
 > = {
   [STATUS.NORMAL]: { text: "正常値", color: "bg-white" },
-  [STATUS.WARNING]: { text: "危険値", color: "bg-yellow-50" },
-  [STATUS.ERROR]: { text: "異常値", color: "bg-red-50" },
+  [STATUS.WARNING]: { text: "危険値", color: "bg-yellow-100" },
+  [STATUS.ERROR]: { text: "異常値", color: "bg-red-100" },
 } as const;
 
 //餌種類
@@ -263,7 +469,7 @@ export const FEEDING_ACTIVITY = [
 export type FeedingActivity = (typeof FEEDING_ACTIVITY)[number];
 export type FeedingActivityValue = FeedingActivity["value"];
 
-//ろ過槽一覧
+//ろ過部一覧
 export const EQ_TANKS: Tank[] = [
   { id: "A", name: "Aライン" },
   { id: "B", name: "Bライン" },
@@ -537,6 +743,36 @@ export interface MonitoringDataField {
     temperature: number;
   }[];
 }
+
+//マスタ一覧
+export const MASTERS: Masters[] = [
+  {
+    id: "01",
+    name: "アラートマスタ",
+    path: ROUTES.ALERT_MASTER,
+  },
+  {
+    id: "02",
+    name: "ユーザーマスタ",
+    path: ROUTES.USER_MASTER,
+  },
+  {
+    id: "03",
+    name: "ろ過部マスタ",
+    path: ROUTES.LINE_MASTER,
+  },
+  {
+    id: "04",
+    name: "飼育槽マスタ",
+    path: ROUTES.TANK_MASTER,
+  },
+];
+
+export type Masters = {
+  id: string;
+  name: string;
+  path: RoutePaths;
+};
 
 //ユーザーマスタサンプルデータ
 export const SAMPLE_USER_DATA: UserDataField[] = [
