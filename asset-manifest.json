@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/vam_demo2/static/css/main.19798074.css",
+    "main.js": "/vam_demo2/static/js/main.84bf75b2.js",
+    "static/js/453.904b2875.chunk.js": "/vam_demo2/static/js/453.904b2875.chunk.js",
+    "index.html": "/vam_demo2/index.html",
+    "main.19798074.css.map": "/vam_demo2/static/css/main.19798074.css.map",
+    "main.84bf75b2.js.map": "/vam_demo2/static/js/main.84bf75b2.js.map",
+    "453.904b2875.chunk.js.map": "/vam_demo2/static/js/453.904b2875.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.19798074.css",
+    "static/js/main.84bf75b2.js"
+  ]
+}
