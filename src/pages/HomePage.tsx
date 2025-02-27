@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
-import { COLORS, PAGE_TITLES, DASHBOARDS } from "../constants/constants";
+import { useState } from "react";
+import { COLORS } from "../constants/ui";
+import { PAGE_TITLES } from "../constants/routes";
+import { DASHBOARDS } from "../constants/menu";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/card";
 import { PageContainer } from "../components/PageContainer";
-import { useState } from "react";
 import { Textarea } from "../components/textarea";
-import { CirclePlus, Check } from "lucide-react";
+import { CirclePlus, Check, Trash2 } from "lucide-react";
+import { useDashboardData } from "../hooks/useDataStore";
 
 const HomePage = () => {
   const [memo, setMemo] = useState("");
@@ -12,100 +15,163 @@ const HomePage = () => {
   const [displayText, setDisplayText] = useState(
     "ここに任意のメモを残せます　(一つでいいですか？)"
   );
+  const [hasMemo, setHasMemo] = useState(true);
+
+  // ダッシュボードデータフックを使用
+  const { dashboardData, isLoading, error } = useDashboardData();
 
   const handleSaveMemo = () => {
     if (memo.trim()) {
       setDisplayText(memo);
+      setHasMemo(true);
     }
     setIsEditing(false);
   };
 
+  const handleDeleteMemo = () => {
+    setDisplayText("");
+    setMemo("");
+    setHasMemo(false);
+  };
+
+  // データローディング中またはエラー時の処理
+  if (isLoading) {
+    return (
+      <PageContainer title={PAGE_TITLES.HOME}>
+        <div className="text-center text-gray-500">データをロード中...</div>
+      </PageContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageContainer title={PAGE_TITLES.HOME}>
+        <div className="text-center text-red-500">
+          データの読み込みにエラーが発生しました
+        </div>
+      </PageContainer>
+    );
+  }
+
   return (
     <PageContainer title={PAGE_TITLES.HOME}>
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* 本日の情報とアラート */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>本日の給餌量</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">本日の給餌量</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex space-x-16">
-                <div>
-                  <span className="font-semibold text-2xl">Aライン</span>
-                  <span className="ml-4 text-2xl">635g</span>
-                </div>
-                <div>
-                  <span className="font-semibold text-2xl">Bライン</span>
-                  <span className="ml-4 text-2xl">658g</span>
-                </div>
+              <div className="flex flex-col sm:flex-row sm:space-x-8 space-y-3 sm:space-y-0">
+                {Object.entries(dashboardData.todayFeedingTotal).map(
+                  ([lineId, total]) => (
+                    <div
+                      key={lineId}
+                      className="bg-blue-50 rounded-lg px-4 py-3 text-center sm:text-left flex-1"
+                    >
+                      <span className="font-semibold text-blue-700">
+                        {lineId}ライン
+                      </span>
+                      <p className="text-xl font-bold text-blue-800">
+                        {total.toFixed(0)}g
+                      </p>
+                    </div>
+                  )
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>メモ</CardTitle>
-            </CardHeader>
-            <CardContent className="flex space-x-5 items-center">
-              {isEditing ? (
-                <>
-                  <Textarea
-                    value={memo}
-                    onChange={(e) => setMemo(e.target.value)}
-                    placeholder="メモを入力"
-                    rows={4}
-                    className="flex-grow"
-                  />
-                  <Check
-                    className="text-green-500 cursor-pointer"
-                    onClick={handleSaveMemo}
-                  />
-                </>
-              ) : (
-                <>
+          <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg">メモ</CardTitle>
+              {/* スマホでタイトル横に＋ボタンを表示 */}
+              <div className="sm:hidden flex">
+                {!isEditing && (
                   <CirclePlus
-                    className="text-gray-500 cursor-pointer"
+                    className="text-gray-500 cursor-pointer h-5 w-5"
                     onClick={() => setIsEditing(true)}
                   />
-                  <p className="text-left text-gray-500 whitespace-pre-wrap">
-                    {displayText}
-                  </p>
-                </>
-              )}
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-5 items-center">
+                {isEditing ? (
+                  <>
+                    <Textarea
+                      value={memo}
+                      onChange={(e) => setMemo(e.target.value)}
+                      placeholder="メモを入力"
+                      rows={4}
+                      className="flex-grow w-full"
+                    />
+                    <div className="flex justify-end w-full sm:w-auto space-x-3">
+                      <Check
+                        className="text-green-500 cursor-pointer h-6 w-6"
+                        onClick={handleSaveMemo}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* PCサイズでのみ表示する＋ボタン */}
+                    <CirclePlus
+                      className="hidden sm:block text-gray-500 cursor-pointer h-5 w-5"
+                      onClick={() => setIsEditing(true)}
+                    />
+                    <p className="text-center sm:text-left text-gray-500 whitespace-pre-wrap flex-grow">
+                      {hasMemo ? displayText : "メモがありません"}
+                    </p>
+                    {hasMemo && (
+                      <Trash2
+                        className="text-red-500 cursor-pointer h-5 w-5"
+                        onClick={handleDeleteMemo}
+                      />
+                    )}
+                  </>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* ダッシュボードと定点観測 */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>ダッシュボード</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">ダッシュボード</CardTitle>
             </CardHeader>
-            <CardContent className={`space-y-2`}>
-              {DASHBOARDS.map((dashboard) => (
-                <Link
-                  key={dashboard.id}
-                  to={dashboard.path}
-                  className={`p-3 border ${COLORS.border.secondary} transition-all duration-300 hover:shadow-lg hover:scale-102  rounded-xl cursor-pointer block`}
-                >
-                  {dashboard.name}
-                </Link>
-              ))}
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {DASHBOARDS.map((dashboard) => (
+                  <Link
+                    key={dashboard.id}
+                    to={dashboard.path}
+                    className={`p-3 border ${COLORS.border.secondary} bg-white hover:bg-blue-50 transition-colors rounded-xl cursor-pointer block`}
+                  >
+                    <p className="font-medium text-blue-700">
+                      {dashboard.name}
+                    </p>
+                  </Link>
+                ))}
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>定点観測通知</CardTitle>
+          <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">定点観測通知</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-center text-gray-500">
-                定点観測の通知が簡易的に
-                <br />
-                ここに表示されます
-              </p>
+              <div className="flex items-center justify-center h-full min-h-[120px]">
+                <p className="text-center text-gray-500">
+                  定点観測の通知が簡易的に
+                  <br />
+                  ここに表示されます
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

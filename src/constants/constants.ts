@@ -269,14 +269,14 @@ export const SIDE_MENU_ITEMS = [
     icon: Monitor,
     subItems: [
       {
-        id: "equipment",
-        path: ROUTES.EQUIPMENT_MANAGEMENT,
-        label: "データ一覧",
-      },
-      {
         id: "breeding",
         path: ROUTES.BREEDING_MANAGEMENT,
         label: "データ入力",
+      },
+      {
+        id: "equipment",
+        path: ROUTES.EQUIPMENT_MANAGEMENT,
+        label: "データ一覧",
       },
       { id: "live", path: ROUTES.LIVE_MONITORING, label: "LIVE映像" },
       {
@@ -300,6 +300,7 @@ export const SIDE_MENU_ITEMS = [
   },
   {
     id: "master",
+    path: ROUTES.MASTER_INDEX,
     label: "マスタ管理",
     icon: FileText,
     subItems: [

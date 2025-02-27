@@ -27,7 +27,7 @@ const UserMaster = () => {
 
   return (
     <PageContainer
-      title={PAGE_TITLES.TANK_MASTER}
+      title={PAGE_TITLES.USER_MASTER}
       action={
         <Button
           onClick={() => setIsNewUserDialogOpen(true)}

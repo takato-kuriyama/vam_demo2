@@ -2,7 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "../components/card";
 import { BarChart3, Activity, Settings, Database } from "lucide-react";
-import { DASHBOARDS, COLORS, PAGE_TITLES } from "../constants/constants";
+import { COLORS } from "../constants/ui";
+import { PAGE_TITLES } from "../constants/routes";
+import { DASHBOARDS } from "../constants/menu";
 import { PageContainer } from "../components/PageContainer";
 
 const getIconByName = (name: string) => {

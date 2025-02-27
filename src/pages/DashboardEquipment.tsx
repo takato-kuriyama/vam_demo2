@@ -34,7 +34,7 @@ const DashboardEquipment = () => {
         ammonia: data.ammonia + (Math.random() < 0.5 ? -1 : 1),
         current: data.current + (Math.random() < 0.5 ? -1 : 1),
         flowRate: data.flowRate + (Math.random() < 0.5 ? -1 : 1),
-        polarity: data.polarity === "Positive" ? "Negative" : "Positive",
+        polarity: data.polarity === "A" ? "B" : "A",
       });
 
       const newStatuses: Record<string, StatusType> = {};

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "../components/card";
 import {
   Dialog,
@@ -10,35 +10,34 @@ import { Input } from "../components/input";
 import { Label } from "../components/label";
 import { Button } from "../components/button";
 import { Settings, Search } from "lucide-react";
-import { COLORS, PAGE_TITLES } from "../constants/constants";
 import { PageContainer } from "../components/PageContainer";
+import { COLORS } from "../constants/ui";
+import { PAGE_TITLES } from "../constants/routes";
+import { useMasterData } from "../hooks/useDataStore";
+import { TankMaster } from "../types/dataModels";
 
-// 飼育槽データの型定義
-interface BreedingTank {
-  id: string;
-  name: string;
-}
-
-const TankMaster = () => {
-  // 飼育槽の初期データ
-  const [tanks, setTanks] = useState<BreedingTank[]>([
-    { id: "A1", name: "A1水槽" },
-    { id: "A2", name: "A2水槽" },
-    { id: "A3", name: "A3水槽" },
-    { id: "A4", name: "A4水槽" },
-    { id: "A5", name: "A5水槽" },
-    { id: "B1", name: "B1水槽" },
-    { id: "B2", name: "B2水槽" },
-  ]);
-
-  const [selectedTank, setSelectedTank] = useState<BreedingTank | null>(null);
+const TankMasterPage = () => {
+  const { masterData, isLoading, updateTank } = useMasterData();
+  const [selectedTank, setSelectedTank] = useState<TankMaster | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // 検索機能の実装
-  const filteredTanks = tanks.filter((tank) =>
+  const filteredTanks = masterData.tanks.filter((tank) =>
     tank.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleTankUpdate = (updatedName: string) => {
+    if (selectedTank) {
+      updateTank(selectedTank.id, { name: updatedName });
+      setIsEditDialogOpen(false);
+      setSelectedTank(null);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <PageContainer title={PAGE_TITLES.TANK_MASTER}>
@@ -64,6 +63,11 @@ const TankMaster = () => {
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
                   <p className="font-semibold text-lg">{tank.name}</p>
+                  <p className="text-sm text-gray-500">
+                    ライン:{" "}
+                    {masterData.lines.find((line) => line.id === tank.lineId)
+                      ?.name || tank.lineId}
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
@@ -90,15 +94,7 @@ const TankMaster = () => {
           setSelectedTank(null);
         }}
         tank={selectedTank}
-        onUpdate={(updatedName) => {
-          setTanks(
-            tanks.map((t) =>
-              t.id === selectedTank?.id ? { ...t, name: updatedName } : t
-            )
-          );
-          setIsEditDialogOpen(false);
-          setSelectedTank(null);
-        }}
+        onUpdate={handleTankUpdate}
       />
     </PageContainer>
   );
@@ -108,7 +104,7 @@ const TankMaster = () => {
 interface BreedingTankEditDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  tank: BreedingTank | null;
+  tank: TankMaster | null;
   onUpdate: (name: string) => void;
 }
 
@@ -119,11 +115,13 @@ const BreedingTankEditDialog: React.FC<BreedingTankEditDialogProps> = ({
   onUpdate,
 }) => {
   const [tankName, setTankName] = useState("");
+  const [lineName, setLineName] = useState("");
 
-  // 選択された水槽が変更されたら名前を更新
-  useEffect(() => {
+  // 選択された水槽が変更されたら情報を更新
+  React.useEffect(() => {
     if (tank) {
       setTankName(tank.name);
+      setLineName(tank.lineId); // これは変更できないので、そのまま保持
     }
   }, [tank]);
 
@@ -150,6 +148,15 @@ const BreedingTankEditDialog: React.FC<BreedingTankEditDialogProps> = ({
             />
           </div>
 
+          <div className="space-y-2">
+            <Label>ライン</Label>
+            <Input
+              value={lineName}
+              readOnly
+              className="bg-gray-100 cursor-not-allowed"
+            />
+          </div>
+
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={onClose}>
               キャンセル
@@ -162,4 +169,4 @@ const BreedingTankEditDialog: React.FC<BreedingTankEditDialogProps> = ({
   );
 };
 
-export default TankMaster;
+export default TankMasterPage;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "../components/card";
 import {
   Dialog,
@@ -10,31 +10,34 @@ import { Input } from "../components/input";
 import { Label } from "../components/label";
 import { Button } from "../components/button";
 import { Settings, Search } from "lucide-react";
-import { COLORS, PAGE_TITLES } from "../constants/constants";
 import { PageContainer } from "../components/PageContainer";
+import { COLORS } from "../constants/ui";
+import { PAGE_TITLES } from "../constants/routes";
+import { useMasterData } from "../hooks/useDataStore";
+import { LineMaster } from "../types/dataModels";
 
-// ろ過槽データの型定義
-interface FilterLine {
-  id: string;
-  name: string;
-}
-
-const LineMaster = () => {
-  // ろ過槽の初期データ
-  const [lines, setLines] = useState<FilterLine[]>([
-    { id: "A", name: "Aライン" },
-    { id: "B", name: "Bライン" },
-    { id: "C", name: "Cライン" },
-  ]);
-
-  const [selectedLine, setSelectedLine] = useState<FilterLine | null>(null);
+const LineMasterPage = () => {
+  const { masterData, isLoading, updateLine } = useMasterData();
+  const [selectedLine, setSelectedLine] = useState<LineMaster | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // 検索機能の実装
-  const filteredLines = lines.filter((line) =>
+  const filteredLines = masterData.lines.filter((line) =>
     line.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleLineUpdate = (updatedName: string) => {
+    if (selectedLine) {
+      updateLine(selectedLine.id, { name: updatedName });
+      setIsEditDialogOpen(false);
+      setSelectedLine(null);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <PageContainer title={PAGE_TITLES.LINE_MASTER}>
@@ -43,13 +46,13 @@ const LineMaster = () => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           className="pl-10"
-          placeholder="ろ過槽が検索できます"
+          placeholder="ろ過ラインが検索できます"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      {/* ろ過槽一覧 */}
+      {/* ろ過ライン一覧 */}
       <div className="grid grid-cols-1 gap-3">
         {filteredLines.map((line) => (
           <Card
@@ -86,15 +89,7 @@ const LineMaster = () => {
           setSelectedLine(null);
         }}
         line={selectedLine}
-        onUpdate={(updatedName) => {
-          setLines(
-            lines.map((l) =>
-              l.id === selectedLine?.id ? { ...l, name: updatedName } : l
-            )
-          );
-          setIsEditDialogOpen(false);
-          setSelectedLine(null);
-        }}
+        onUpdate={handleLineUpdate}
       />
     </PageContainer>
   );
@@ -104,7 +99,7 @@ const LineMaster = () => {
 interface FilterLineEditDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  line: FilterLine | null;
+  line: LineMaster | null;
   onUpdate: (name: string) => void;
 }
 
@@ -115,11 +110,13 @@ const FilterLineEditDialog: React.FC<FilterLineEditDialogProps> = ({
   onUpdate,
 }) => {
   const [lineName, setLineName] = useState("");
+  const [lineId, setLineId] = useState("");
 
   // 選択されたラインが変更されたら名前を更新
-  useEffect(() => {
+  React.useEffect(() => {
     if (line) {
       setLineName(line.name);
+      setLineId(line.id);
     }
   }, [line]);
 
@@ -132,7 +129,9 @@ const FilterLineEditDialog: React.FC<FilterLineEditDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md bg-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">ろ過槽編集</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            ろ過ライン編集
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
@@ -158,4 +157,4 @@ const FilterLineEditDialog: React.FC<FilterLineEditDialogProps> = ({
   );
 };
 
-export default LineMaster;
+export default LineMasterPage;

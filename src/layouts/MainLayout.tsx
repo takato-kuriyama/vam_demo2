@@ -62,9 +62,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <header
         className={`${COLORS.bg.primary} border-b ${COLORS.border.primary} shadow-sm sticky top-0 z-50`}
       >
-        <div className="flex items-center justify-between p-4 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between p-2 max-w-7xl mx-auto">
           <div className="flex items-center space-x-4">
-            {/* <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <button
                 onClick={toggleMenu}
                 className={`p-2 ${COLORS.hover.primary} rounded-full transition-colors`}
@@ -79,7 +79,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   {SIDE_MENU_ITEMS.map(renderMenuItem)}
                 </nav>
               </SheetContent>
-            </Sheet> */}
+            </Sheet>
 
             {/* 固定メニュー */}
             <div className="flex flex-col space-y-2">
@@ -95,18 +95,26 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   </Link>
                 ))}
               </div>
-              <div
-                className={`w-full ${COLORS.bg.error3} text-lg rounded-xl border ${COLORS.border.primary}`}
-              >
-                <Link
-                  className={`font-bold text-yellow-200 flex space-x-5 items-center justify-center hover:text-yellow-500`}
-                  to={ROUTES.ALERT_HISTORY}
-                >
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>2025-02-12 15:00 酸素濃度アラート　AラインA2</span>
-                </Link>
-              </div>
             </div>
+          </div>
+        </div>
+        <div className="flex justify-center items-center mb-3">
+          <div
+            className={`w-4/5 ${COLORS.bg.error3} text-lg rounded-xl border ${COLORS.border.primary}`}
+          >
+            <Link
+              className={`font-bold text-yellow-200 flex space-x-5 items-center justify-center hover:text-yellow-500`}
+              to={ROUTES.ALERT_HISTORY}
+            >
+              <AlertTriangle className="h-5 w-5" />
+              <span className="md:inline hidden">
+                2025-02-12 15:00 酸素濃度アラート　AラインA2
+              </span>
+              <span className="md:hidden inline leading-tight p-1">
+                2025-02-12 15:00 <br />
+                酸素濃度アラート　AラインA2
+              </span>
+            </Link>
           </div>
         </div>
       </header>

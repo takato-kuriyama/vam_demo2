@@ -2,6 +2,16 @@ import { useState } from "react";
 import { Card } from "../components/card";
 import { Tabs, TabsList, TabsTrigger } from "../components/tabs";
 import { Button } from "../components/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/alert-dialog";
 import { Input } from "../components/input";
 import { EQ_TANKS, PAGE_TITLES } from "../constants/constants";
 import { PageContainer } from "../components/PageContainer";
@@ -15,10 +25,22 @@ const RemoteControl = () => {
     polarity: "A",
   });
 
-  const handleValueChange = (paramId: string, value: string | number) => {
+  const [tempCurrent, setTempCurrent] = useState(controlValues.current);
+  const [tempFeedAmount, setTempFeedAmount] = useState(
+    controlValues.feedAmount
+  );
+
+  const handleConfirmCurrentChange = () => {
     setControlValues((prev) => ({
       ...prev,
-      [paramId]: value,
+      current: tempCurrent,
+    }));
+  };
+
+  const handleConfirmFeedAmountChange = () => {
+    setControlValues((prev) => ({
+      ...prev,
+      feedAmount: tempFeedAmount,
     }));
   };
 
@@ -74,15 +96,37 @@ const RemoteControl = () => {
               <div className="text-5xl font-bold text-slate-800">
                 {controlValues.filterSystem}
               </div>
-              <Button
-                onClick={() =>
-                  handleToggle("filterSystem", controlValues.filterSystem)
-                }
-                variant="outline"
-                className="w-full max-w-[200px] bg-white hover:bg-slate-50"
-              >
-                {controlValues.filterSystem === "ON" ? "OFFにする" : "ONにする"}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full max-w-[200px] bg-white hover:bg-slate-50"
+                  >
+                    {controlValues.filterSystem === "ON"
+                      ? "OFFにする"
+                      : "ONにする"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {controlValues.filterSystem === "ON"
+                        ? "ろ過装置をOFFにします。本当によろしいですか？"
+                        : "ろ過装置をONにします。本当によろしいですか？"}
+                    </AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() =>
+                        handleToggle("filterSystem", controlValues.filterSystem)
+                      }
+                    >
+                      実行
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </Card>
@@ -104,20 +148,38 @@ const RemoteControl = () => {
                 <Input
                   type="number"
                   min={0}
-                  max={10}
+                  max={100}
                   step={0.1}
-                  value={controlValues.current}
-                  onChange={(e) =>
-                    handleValueChange("current", parseFloat(e.target.value))
-                  }
+                  value={tempCurrent}
+                  onChange={(e) => setTempCurrent(parseFloat(e.target.value))}
                   className="text-center h-10"
                 />
-                <Button
-                  variant="outline"
-                  className="bg-white hover:bg-slate-50 flex-shrink-0 h-10"
-                >
-                  変更
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="bg-white hover:bg-slate-50 flex-shrink-0 h-10"
+                    >
+                      変更
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        電流値を [{controlValues.current}A] から [{tempCurrent}
+                        A] に変更します。
+                        <br />
+                        本当によろしいですか？
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleConfirmCurrentChange}>
+                        実行
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </div>
@@ -142,18 +204,41 @@ const RemoteControl = () => {
                   min={0}
                   max={1000}
                   step={10}
-                  value={controlValues.feedAmount}
+                  value={tempFeedAmount}
                   onChange={(e) =>
-                    handleValueChange("feedAmount", parseFloat(e.target.value))
+                    setTempFeedAmount(parseFloat(e.target.value))
                   }
                   className="text-center h-10"
                 />
-                <Button
-                  variant="outline"
-                  className="bg-white hover:bg-slate-50 flex-shrink-0 h-10"
-                >
-                  変更
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="bg-white hover:bg-slate-50 flex-shrink-0 h-10"
+                    >
+                      変更
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        給餌量を [{controlValues.feedAmount}g] から [
+                        {tempFeedAmount}
+                        g] に変更します。
+                        <br />
+                        本当によろしいですか？
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleConfirmFeedAmountChange}
+                      >
+                        実行
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </div>
