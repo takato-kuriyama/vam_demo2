@@ -150,6 +150,7 @@ export const SIDE_MENU_ITEMS = [
       { id: "alert", path: ROUTES.ALERT_MASTER, label: "アラートマスタ" },
       { id: "line", path: ROUTES.LINE_MASTER, label: "ろ過部マスタ" },
       { id: "tank", path: ROUTES.TANK_MASTER, label: "飼育槽マスタ" },
+      { id: "seed", path: ROUTES.SEED_MASTER, label: "種苗マスタ" },
     ],
   },
 ] as const;
@@ -211,5 +212,10 @@ export const MASTERS: Masters[] = [
     id: "04",
     name: "飼育槽マスタ",
     path: ROUTES.TANK_MASTER,
+  },
+  {
+    id: "05",
+    name: "種苗マスタ",
+    path: ROUTES.SEED_MASTER,
   },
 ];

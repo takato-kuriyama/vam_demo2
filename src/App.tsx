@@ -21,6 +21,7 @@ import RemoteControll from "./pages/RemoteControll";
 import MasterIndex from "./pages/masters/MasterIndex";
 import FishStocking from "./pages/entries/FishStocking";
 import FishTransfer from "./pages/entries/FishTransfer";
+import SeedMaster from "./pages/masters/SeedMaster";
 
 // コンポーネントの対応表（IDとコンポーネントのマッピング）
 const PAGE_COMPONENTS = {
@@ -41,6 +42,7 @@ const PAGE_COMPONENTS = {
   REMOTE_CONTROLL: RemoteControll,
   FISH_STOCKING: FishStocking,
   FISH_TRANSFER: FishTransfer,
+  SEED_MASTER: SeedMaster,
 };
 
 function App() {
