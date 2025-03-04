@@ -8,7 +8,7 @@ import {
   Search,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { PageContainer } from "../layouts/PageContainer";
+import { PageContainer } from "../components/layouts/PageContainer";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -40,6 +40,9 @@ import {
   DialogFooter,
 } from "../components/ui/dialog";
 import { AlertData } from "../types/dataModels";
+import { ErrorMessage } from "../components/ui/error-message";
+import { formatDateForDisplay } from "../lib/date-utils";
+import { formatValueWithUnit } from "../lib/format-utils";
 
 const AlertHistory = () => {
   // useAlertDataフックを使用してアラートデータとロード状態を取得
@@ -136,9 +139,7 @@ const AlertHistory = () => {
   if (error) {
     return (
       <PageContainer title={PAGE_TITLES.ALERT_HISTORY}>
-        <div className="flex justify-center items-center h-40">
-          <p className="text-red-500">データの読み込みに失敗しました</p>
-        </div>
+        <ErrorMessage error="アラートデータの読み込みに失敗しました" />
       </PageContainer>
     );
   }
@@ -191,9 +192,7 @@ const AlertHistory = () => {
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="w-fit flex items-center gap-2">
-              {startDate
-                ? format(startDate, "yyyy/MM/dd", { locale: ja })
-                : "開始日"}
+              {startDate ? formatDateForDisplay(startDate) : "開始日"}
               <CalendarIcon className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
@@ -212,9 +211,7 @@ const AlertHistory = () => {
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="w-fit flex items-center gap-2">
-              {endDate
-                ? format(endDate, "yyyy/MM/dd", { locale: ja })
-                : "終了日"}
+              {endDate ? formatDateForDisplay(endDate) : "終了日"}
               <CalendarIcon className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
@@ -286,11 +283,7 @@ const AlertHistory = () => {
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-semibold text-lg">
-                          {format(
-                            new Date(alert.timestamp),
-                            "yyyy/MM/dd HH:mm",
-                            { locale: ja }
-                          )}
+                          {formatDateForDisplay(alert.timestamp)}
                         </p>
                         <p className="font-semibold text-lg">
                           {alert.paramName}
@@ -309,11 +302,12 @@ const AlertHistory = () => {
 
                       <div className="flex items-center gap-2 text-sm">
                         <span className="text-gray-600">
-                          検知値: {alert.paramValue.toFixed(2)}
+                          検知値: {formatValueWithUnit(alert.paramValue, "", 2)}
                         </span>
                         <span className="text-gray-600">
-                          基準値: {alert.thresholdMin.toFixed(2)}～
-                          {alert.thresholdMax.toFixed(2)}
+                          基準値:{" "}
+                          {formatValueWithUnit(alert.thresholdMin, "", 2)}～
+                          {formatValueWithUnit(alert.thresholdMax, "", 2)}
                         </span>
                       </div>
 
@@ -333,9 +327,8 @@ const AlertHistory = () => {
                         {alert.resolvedAt && (
                           <span className="text-sm text-gray-500">
                             (
-                            {format(new Date(alert.resolvedAt), "MM/dd HH:mm", {
-                              locale: ja,
-                            })}
+                            {alert.resolvedAt &&
+                              formatDateForDisplay(alert.resolvedAt)}
                             )
                           </span>
                         )}
@@ -380,11 +373,7 @@ const AlertHistory = () => {
             <div className="space-y-4 pt-4">
               <div className="flex items-center justify-between">
                 <p className="text-lg font-semibold">
-                  {format(
-                    new Date(selectedAlert.timestamp),
-                    "yyyy/MM/dd HH:mm:ss",
-                    { locale: ja }
-                  )}
+                  {formatDateForDisplay(selectedAlert.timestamp)}
                 </p>
                 <div className="border border-gray-300 flex p-1 px-2 gap-2">
                   <p className="text-sm">{getLineName(selectedAlert.lineId)}</p>

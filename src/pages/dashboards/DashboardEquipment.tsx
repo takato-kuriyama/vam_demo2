@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { PAGE_TITLES } from "../../constants/routes";
 import { COLORS, STATUS, STATUS_DISPLAY, StatusType } from "../../constants/ui";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
@@ -8,6 +7,7 @@ import { PageContainer } from "../../components/layouts/PageContainer";
 import { useMasterData, useEquipmentData } from "../../hooks/useDataStore";
 import { EquipmentData, ParameterDefinition } from "../../types/dataModels";
 import ParameterTrendChart from "../../components/charts/ParameterTrendChart";
+import { ParameterCard } from "../../components/features/ParameterCard";
 
 const DashboardEquipment = () => {
   // 詳細ダイアログの表示状態
@@ -88,30 +88,6 @@ const DashboardEquipment = () => {
     });
 
     setStatuses(newStatuses);
-  };
-
-  // ステータスアイコンを取得
-  const getStatusIcon = (status: StatusType) => {
-    switch (status) {
-      case STATUS.WARNING:
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case STATUS.ERROR:
-        return <TrendingDown className="h-5 w-5 text-red-500" />;
-      default:
-        return <TrendingUp className="h-5 w-5 text-emerald-500" />;
-    }
-  };
-
-  // ステータスに応じたスタイルを取得
-  const getStatusStyle = (status: StatusType) => {
-    switch (status) {
-      case STATUS.WARNING:
-        return "bg-yellow-50 border-yellow-200";
-      case STATUS.ERROR:
-        return "bg-red-50 border-red-200";
-      default:
-        return "bg-emerald-50 border-emerald-200";
-    }
   };
 
   // パラメータカードクリック時のハンドラ
@@ -212,78 +188,42 @@ const DashboardEquipment = () => {
               const value = currentLineData[param.id as keyof EquipmentData];
               const isNumericValue = typeof value === "number";
 
-              return (
-                <div
+              return isNumericValue ? (
+                <ParameterCard
                   key={param.id}
-                  className={`
-                    relative p-6 rounded-2xl border 
-                    ${getStatusStyle(status)}
-                    transition-all duration-300 hover:shadow-md cursor-pointer
-                  `}
+                  name={param.name}
+                  value={value as number}
+                  unit={param.unit}
+                  status={status}
+                  statusText={statusInfo.text}
+                  normalMin={param.normalMin}
+                  normalMax={param.normalMax}
                   onClick={() => handleParameterClick(param)}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium text-slate-700">
-                        {param.name}
-                      </h3>
-                      <p className="text-sm text-slate-500">
-                        {statusInfo.text}
-                      </p>
-                    </div>
-                    {getStatusIcon(status)}
-                  </div>
-
-                  <div className="flex items-baseline">
-                    {isNumericValue ? (
-                      <>
-                        <span className="text-4xl font-bold text-slate-800">
-                          {param.id === "ammonia"
-                            ? (value as number).toFixed(2)
-                            : (value as number).toFixed(1)}
-                        </span>
-                        <span className="ml-2 text-slate-600">
-                          {param.unit}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-4xl font-bold text-slate-800">
-                        {String(value)}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-2 flex items-center text-xs text-slate-500">
-                    <span>
-                      基準値: {param.normalMin} ~ {param.normalMax}
-                      {param.unit}
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-2xl overflow-hidden">
-                    <div
-                      className={`
-                        h-full transition-all duration-300
-                        ${status === STATUS.ERROR ? "bg-red-500" : ""}
-                        ${status === STATUS.WARNING ? "bg-yellow-500" : ""}
-                        ${status === STATUS.NORMAL ? "bg-emerald-500" : ""}
-                      `}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                </div>
-              );
+                />
+              ) : null;
             })}
 
             {/* 水温表示カード */}
             {currentLineData &&
               typeof currentLineData.temperature === "number" && (
-                <div
-                  className={`
-                  relative p-6 rounded-2xl border 
-                  ${getStatusStyle(statuses["temperature"] || STATUS.NORMAL)}
-                  transition-all duration-300 hover:shadow-md cursor-pointer
-                `}
+                <ParameterCard
+                  key="temperature"
+                  name="水温"
+                  value={currentLineData.temperature}
+                  unit="℃"
+                  status={statuses["temperature"] || STATUS.NORMAL}
+                  statusText={
+                    STATUS_DISPLAY[statuses["temperature"] || STATUS.NORMAL]
+                      .text
+                  }
+                  normalMin={
+                    masterData.parameters.find((p) => p.id === "temperature")
+                      ?.normalMin
+                  }
+                  normalMax={
+                    masterData.parameters.find((p) => p.id === "temperature")
+                      ?.normalMax
+                  }
                   onClick={() => {
                     const tempParam = masterData.parameters.find(
                       (p) => p.id === "temperature"
@@ -292,66 +232,7 @@ const DashboardEquipment = () => {
                       handleParameterClick(tempParam);
                     }
                   }}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium text-slate-700">
-                        水温
-                      </h3>
-                      <p className="text-sm text-slate-500">
-                        {
-                          STATUS_DISPLAY[
-                            statuses["temperature"] || STATUS.NORMAL
-                          ].text
-                        }
-                      </p>
-                    </div>
-                    {getStatusIcon(statuses["temperature"] || STATUS.NORMAL)}
-                  </div>
-
-                  <div className="flex items-baseline">
-                    <span className="text-4xl font-bold text-slate-800">
-                      {currentLineData.temperature.toFixed(1)}
-                    </span>
-                    <span className="ml-2 text-slate-600">℃</span>
-                  </div>
-
-                  <div className="mt-2 flex items-center text-xs text-slate-500">
-                    <span>
-                      基準値:{" "}
-                      {masterData.parameters.find((p) => p.id === "temperature")
-                        ?.normalMin || "-"}{" "}
-                      ~{" "}
-                      {masterData.parameters.find((p) => p.id === "temperature")
-                        ?.normalMax || "-"}
-                      ℃
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-2xl overflow-hidden">
-                    <div
-                      className={`
-                      h-full transition-all duration-300
-                      ${
-                        statuses["temperature"] === STATUS.ERROR
-                          ? "bg-red-500"
-                          : ""
-                      }
-                      ${
-                        statuses["temperature"] === STATUS.WARNING
-                          ? "bg-yellow-500"
-                          : ""
-                      }
-                      ${
-                        statuses["temperature"] === STATUS.NORMAL
-                          ? "bg-emerald-500"
-                          : ""
-                      }
-                    `}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                </div>
+                />
               )}
           </div>
         </>

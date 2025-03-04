@@ -7,6 +7,7 @@ import { PageContainer } from "../../components/layouts/PageContainer";
 import { useMasterData, useBreedingData } from "../../hooks/useDataStore";
 import { BreedingPlcData, ParameterDefinition } from "../../types/dataModels";
 import BreedingParameterTrendDialog from "../../components/charts/BreedingParameterTrendDialog";
+import { ParameterCard } from "../../components/features/ParameterCard";
 
 // 飼育槽パラメータの定義
 const BREEDING_PARAMETERS = [
@@ -118,30 +119,6 @@ const DashboardBreeding = () => {
     setStatuses(newStatuses);
   };
 
-  // ステータスアイコンを取得
-  const getStatusIcon = (status: StatusType) => {
-    switch (status) {
-      case STATUS.WARNING:
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case STATUS.ERROR:
-        return <TrendingDown className="h-5 w-5 text-red-500" />;
-      default:
-        return <TrendingUp className="h-5 w-5 text-emerald-500" />;
-    }
-  };
-
-  // ステータスに応じたスタイルを取得
-  const getStatusStyle = (status: StatusType) => {
-    switch (status) {
-      case STATUS.WARNING:
-        return "bg-yellow-50 border-yellow-200";
-      case STATUS.ERROR:
-        return "bg-red-50 border-red-200";
-      default:
-        return "bg-emerald-50 border-emerald-200";
-    }
-  };
-
   // パラメータカードクリック時のハンドラ
   const handleParameterClick = (paramId: string) => {
     const param = masterData.parameters.find((p) => p.id === paramId);
@@ -223,63 +200,22 @@ const DashboardBreeding = () => {
               const value = currentTankData[
                 param.id as keyof BreedingPlcData
               ] as number;
+              const paramDef = masterData.parameters.find(
+                (p) => p.id === param.id
+              );
 
               return (
-                <div
+                <ParameterCard
                   key={param.id}
-                  className={`
-                    relative p-6 rounded-2xl border 
-                    ${getStatusStyle(status)}
-                    transition-all duration-300 hover:shadow-md cursor-pointer
-                  `}
+                  name={param.name}
+                  value={value}
+                  unit={param.unit}
+                  status={status}
+                  statusText={statusInfo.text}
+                  normalMin={paramDef?.normalMin}
+                  normalMax={paramDef?.normalMax}
                   onClick={() => handleParameterClick(param.id)}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium text-slate-700">
-                        {param.name}
-                      </h3>
-                      <p className="text-sm text-slate-500">
-                        {statusInfo.text}
-                      </p>
-                    </div>
-                    {getStatusIcon(status)}
-                  </div>
-
-                  <div className="flex items-baseline">
-                    <span className="text-4xl font-bold text-slate-800">
-                      {value.toFixed(1)}
-                    </span>
-                    <span className="ml-2 text-slate-600">{param.unit}</span>
-                  </div>
-
-                  <div className="mt-2 flex items-center text-xs text-slate-500">
-                    <span>
-                      {/* パラメータ定義を取得して基準値を表示 */}
-                      {(() => {
-                        const paramDef = masterData.parameters.find(
-                          (p) => p.id === param.id
-                        );
-                        if (paramDef) {
-                          return `基準値: ${paramDef.normalMin} ~ ${paramDef.normalMax}${param.unit}`;
-                        }
-                        return "基準値: -";
-                      })()}
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-2xl overflow-hidden">
-                    <div
-                      className={`
-                        h-full transition-all duration-300
-                        ${status === STATUS.ERROR ? "bg-red-500" : ""}
-                        ${status === STATUS.WARNING ? "bg-yellow-500" : ""}
-                        ${status === STATUS.NORMAL ? "bg-emerald-500" : ""}
-                      `}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                </div>
+                />
               );
             })}
           </div>
