@@ -12,17 +12,17 @@ import {
 } from "./select";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { AlertMaster } from "../types/dataModels";
 import {
-  AlertMasterField,
   ALERT_TARGET_DATA,
   ALERT_DUPLICATE_CONTROLS,
-} from "../constants/constants";
+} from "../constants/masterData/alerts";
 
 interface AlertMasterDialogProps {
   isOpen: boolean;
   onClose: () => void;
   isEdit?: boolean;
-  alertData?: AlertMasterField;
+  alertData?: AlertMaster;
 }
 
 export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
@@ -33,13 +33,13 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     name: alertData?.name || "",
-    targetData: alertData?.targetData || ALERT_TARGET_DATA[0].id,
+    targetParam: alertData?.targetParam || ALERT_TARGET_DATA[0]?.id || "",
     thresholdMin: alertData?.thresholdMin || 0.5,
     thresholdMax: alertData?.thresholdMax || 3.0,
     dangerMin: alertData?.dangerMin || 0.5,
     dangerMax: alertData?.dangerMax || 3.0,
     duplicateControl:
-      alertData?.duplicateControl || ALERT_DUPLICATE_CONTROLS[0].id,
+      alertData?.duplicateControl || ALERT_DUPLICATE_CONTROLS[0]?.id || "",
     solution: alertData?.solution || "",
   });
 
@@ -52,7 +52,7 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-white max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md bg-white max-h-[90vh] overflow-y-auto w-[95vw] md:w-full">
         <DialogHeader className="flex flex-row items-center justify-between p-0">
           <DialogTitle className="text-xl font-bold">
             {isEdit ? "アラート編集" : "アラート新規作成"}
@@ -81,9 +81,9 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
           <div className="space-y-2">
             <Label>対象データ：</Label>
             <Select
-              value={formData.targetData}
+              value={formData.targetParam}
               onValueChange={(value) =>
-                setFormData({ ...formData, targetData: value })
+                setFormData({ ...formData, targetParam: value })
               }
             >
               <SelectTrigger>
@@ -101,7 +101,7 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
 
           <div className="space-y-2">
             <Label>閾値設定：</Label>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <Input
                 type="number"
                 step="0.1"
@@ -112,8 +112,10 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
                     thresholdMin: parseFloat(e.target.value),
                   })
                 }
+                className="w-full"
               />
-              <span>～</span>
+              <span className="hidden sm:inline">～</span>
+              <span className="sm:hidden text-center w-full">～</span>
               <Input
                 type="number"
                 step="0.1"
@@ -124,13 +126,14 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
                     thresholdMax: parseFloat(e.target.value),
                   })
                 }
+                className="w-full"
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label>危険値設定：</Label>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <Input
                 type="number"
                 step="0.1"
@@ -141,8 +144,10 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
                     dangerMin: parseFloat(e.target.value),
                   })
                 }
+                className="w-full"
               />
-              <span>～</span>
+              <span className="hidden sm:inline">～</span>
+              <span className="sm:hidden text-center w-full">～</span>
               <Input
                 type="number"
                 step="0.1"
@@ -153,6 +158,7 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
                     dangerMax: parseFloat(e.target.value),
                   })
                 }
+                className="w-full"
               />
             </div>
           </div>
@@ -191,11 +197,18 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="w-full sm:w-auto"
+            >
               キャンセル
             </Button>
-            <Button type="submit">保存</Button>
+            <Button type="submit" className="w-full sm:w-auto">
+              保存
+            </Button>
           </div>
         </form>
       </DialogContent>

@@ -11,7 +11,10 @@ import {
   TankMaster,
   ParameterDefinition,
   AlertMaster,
+  FixedPointData,
 } from "../types/dataModels";
+import { format, startOfDay, endOfDay } from "date-fns";
+import { ja } from "date-fns/locale";
 
 // 実際のアプリケーションでは、以下のようなデータはAPI呼び出し等で取得する
 // ここではモックデータを使用
@@ -50,6 +53,9 @@ class DataStoreImpl {
     isLoaded: false,
   };
 
+  // 定点観測データの保存用
+  private _fixedPointData: FixedPointData[] = [];
+
   private constructor() {
     // シングルトンなのでプライベートコンストラクタ
   }
@@ -74,6 +80,10 @@ class DataStoreImpl {
         ...generatedData,
         isLoaded: true,
       };
+
+      // 定点観測データを生成
+      this._fixedPointData = this.generateFixedPointData();
+
       console.log("データ生成完了:", {
         equipment: this._data.equipmentData.length,
         breeding: this._data.breedingPlcData.length,
@@ -81,6 +91,7 @@ class DataStoreImpl {
         fishCount: this._data.fishCountData.length,
         packTest: this._data.packTestData.length,
         alerts: this._data.alerts.length,
+        fixedPoint: this._fixedPointData.length,
       });
     } catch (error) {
       console.error("データ生成エラー:", error);
@@ -323,6 +334,123 @@ class DataStoreImpl {
     });
 
     return totals;
+  }
+
+  // 定点観測データ生成メソッド
+  private generateFixedPointData(): FixedPointData[] {
+    const generatedData: FixedPointData[] = [];
+    const lines = this._data.masterData.lines;
+    const tanks = this._data.masterData.tanks;
+
+    // 1年分のデータを生成（実際のデータ量に応じて調整可能）
+    const endDate = new Date();
+    const startDate = new Date();
+    //startDate.setFullYear(startDate.getFullYear() - 1);
+    //重いので二週間
+    startDate.setDate(startDate.getDate() - 14);
+
+    // 日付を遡って定点観測データを生成
+    let currentDate = new Date(endDate);
+    while (currentDate >= startDate) {
+      // すべての日付でデータを生成
+      for (const line of lines.filter((l) => l.active)) {
+        // データが存在するか確認（過去の特定の日にデータがない可能性もある）
+        const hasData = Math.random() > 0.1; // 90%の確率でデータあり
+        if (hasData) {
+          // その日に近い設備データを取得
+          const equipmentDataList = this.getEquipmentDataForLine(
+            line.id,
+            startOfDay(currentDate),
+            endOfDay(currentDate)
+          );
+
+          const equipmentData =
+            equipmentDataList.length > 0 ? equipmentDataList[0] : null;
+
+          // その日に近い飼育データを取得
+          const breedingDataMap: Record<string, BreedingPlcData | null> = {};
+          const lineTanks = tanks.filter(
+            (tank) =>
+              tank.lineId === line.id && tank.type === "breeding" && tank.active
+          );
+
+          for (const tank of lineTanks) {
+            const tankDataList = this.getBreedingPlcDataForTank(
+              tank.id,
+              startOfDay(currentDate),
+              endOfDay(currentDate)
+            );
+
+            breedingDataMap[tank.id] =
+              tankDataList.length > 0 ? tankDataList[0] : null;
+          }
+
+          generatedData.push({
+            id: `${line.id}-${format(currentDate, "yyyyMMdd")}`,
+            date: new Date(currentDate),
+            lineId: line.id,
+            lineName: line.name,
+            equipmentData,
+            breedingData: breedingDataMap,
+          });
+        }
+      }
+
+      // 1日前に進む
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+
+    // 日付の新しい順にソート
+    return generatedData.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  // 定点観測データ取得メソッド
+  public getFixedPointData(options?: {
+    startDate?: Date | null;
+    endDate?: Date | null;
+    lineId?: string;
+    searchTerm?: string;
+  }): FixedPointData[] {
+    if (!this._data.isLoaded) {
+      return [];
+    }
+
+    let filteredData = [...this._fixedPointData];
+
+    if (options) {
+      // ライン検索
+      if (options.lineId && options.lineId !== "all") {
+        filteredData = filteredData.filter(
+          (data) => data.lineId === options.lineId
+        );
+      }
+
+      // 日付範囲でフィルタリング
+      if (options.startDate) {
+        const startDate = startOfDay(options.startDate);
+        filteredData = filteredData.filter((data) => data.date >= startDate);
+      }
+
+      if (options.endDate) {
+        const endDate = endOfDay(options.endDate);
+        filteredData = filteredData.filter((data) => data.date <= endDate);
+      }
+
+      // テキスト検索
+      if (options.searchTerm) {
+        const searchLower = options.searchTerm.toLowerCase();
+        filteredData = filteredData.filter((data) => {
+          const dateStr = format(data.date, "yyyy/MM/dd", { locale: ja });
+          const lineName = data.lineName.toLowerCase();
+
+          return (
+            dateStr.includes(searchLower) || lineName.includes(searchLower)
+          );
+        });
+      }
+    }
+
+    return filteredData;
   }
 }
 

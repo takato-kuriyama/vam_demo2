@@ -112,3 +112,12 @@ export interface ParameterDefinition {
   dangerMin: number; // 危険下限値
   dangerMax: number; // 危険上限値
 }
+
+export interface FixedPointData {
+  id: string;
+  date: Date;
+  lineId: string;
+  lineName: string;
+  equipmentData: EquipmentData | null;
+  breedingData: Record<string, BreedingPlcData | null>;
+}

@@ -1,13 +1,11 @@
 import { useState } from "react";
-import {
-  ROUTES,
-  COLORS,
-  HEADER_MENU_ITEMS,
-  SIDE_MENU_ITEMS,
-} from "../constants/constants";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent } from "../components/sheet";
-import { AlertTriangle, Menu, ArrowRight } from "lucide-react";
+import { AlertTriangle, Menu, ArrowRight, Fish } from "lucide-react";
+import { ROUTES } from "../constants/routes";
+import { COLORS } from "../constants/ui";
+import { HEADER_MENU_ITEMS, SIDE_MENU_ITEMS } from "../constants/menu";
+import { useAlertData } from "../hooks/useDataStore";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -15,6 +13,15 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { alerts, isLoading } = useAlertData();
+
+  // 未解決のアラートを取得
+  const unresolvedAlerts = !isLoading
+    ? alerts.filter((alert) => !alert.resolved)
+    : [];
+  // 最新の未解決アラートを取得
+  const latestAlert = unresolvedAlerts.length > 0 ? unresolvedAlerts[0] : null;
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -98,25 +105,32 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </div>
           </div>
         </div>
-        <div className="flex justify-center items-center mb-3">
-          <div
-            className={`w-4/5 ${COLORS.bg.error3} text-lg rounded-xl border ${COLORS.border.primary}`}
-          >
-            <Link
-              className={`font-bold text-yellow-200 flex space-x-5 items-center justify-center hover:text-yellow-500`}
-              to={ROUTES.ALERT_HISTORY}
+
+        {/* アラート通知バー */}
+        {latestAlert && (
+          <div className="flex justify-center items-center mb-3">
+            <div
+              className={`w-4/5 ${COLORS.bg.error3} text-lg rounded-xl border ${COLORS.border.primary}`}
             >
-              <AlertTriangle className="h-5 w-5" />
-              <span className="md:inline hidden">
-                2025-02-12 15:00 酸素濃度アラート　AラインA2
-              </span>
-              <span className="md:hidden inline leading-tight p-1">
-                2025-02-12 15:00 <br />
-                酸素濃度アラート　AラインA2
-              </span>
-            </Link>
+              <Link
+                className={`font-bold text-yellow-200 flex space-x-5 items-center justify-center hover:text-yellow-500 p-2`}
+                to={ROUTES.ALERT_HISTORY}
+              >
+                <AlertTriangle className="h-5 w-5" />
+                <span className="md:inline hidden">
+                  {new Date(latestAlert.timestamp).toLocaleString()}{" "}
+                  {latestAlert.paramName}アラート {latestAlert.lineId}ライン
+                  {latestAlert.tankId && `${latestAlert.tankId}`}
+                </span>
+                <span className="md:hidden inline leading-tight">
+                  {new Date(latestAlert.timestamp).toLocaleString()} <br />
+                  {latestAlert.paramName}アラート {latestAlert.lineId}ライン
+                  {latestAlert.tankId && `${latestAlert.tankId}`}
+                </span>
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </header>
       <main className="p-4 max-w-7xl mx-auto">{children}</main>
     </div>

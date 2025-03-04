@@ -12,9 +12,7 @@ import { useDashboardData } from "../hooks/useDataStore";
 const HomePage = () => {
   const [memo, setMemo] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [displayText, setDisplayText] = useState(
-    "ここに任意のメモを残せます　(一つでいいですか？)"
-  );
+  const [displayText, setDisplayText] = useState("ここに任意のメモを残せます");
   const [hasMemo, setHasMemo] = useState(true);
 
   // ダッシュボードデータフックを使用

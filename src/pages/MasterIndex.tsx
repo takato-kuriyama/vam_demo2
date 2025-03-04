@@ -8,7 +8,7 @@ import { PageContainer } from "../components/PageContainer";
 const MasterIndex = () => {
   return (
     <PageContainer title={PAGE_TITLES.MASTER_INDEX}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {MASTERS.map((master) => (
           <Link key={master.id} to={master.path}>
             <Card

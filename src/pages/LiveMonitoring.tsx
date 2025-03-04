@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/tabs";
-import { PAGE_TITLES, COLORS } from "../constants/constants";
+import { PAGE_TITLES } from "../constants/routes";
+import { COLORS } from "../constants/ui";
 import { PageContainer } from "../components/PageContainer";
 
 const LiveMonitoring = () => {
@@ -17,6 +18,7 @@ const LiveMonitoring = () => {
             <TabsList className="flex justify-start space-x-2">
               {Line.map((line) => (
                 <TabsTrigger
+                  key={line}
                   value={line}
                   onClick={() => setSelectedLine(line)}
                   className={`data-[state=active]:bg-blue-100 px-4 py-2 rounded-xl shadow bg-gray-50`}
@@ -28,7 +30,7 @@ const LiveMonitoring = () => {
           </div>
           <div>
             <TabsContent value="Aライン">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5].map((num) => (
                   <div key={num} className="flex flex-col items-center">
                     <div className="w-full h-48 bg-gray-200 flex items-center justify-center border">
@@ -39,7 +41,7 @@ const LiveMonitoring = () => {
               </div>
             </TabsContent>
             <TabsContent value="Bライン">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5].map((num) => (
                   <div key={num} className="flex flex-col items-center">
                     <div className="w-full h-48 bg-gray-200 flex items-center justify-center border">

@@ -8,6 +8,9 @@ import {
   Settings,
   FileText,
   FileEdit,
+  Fish,
+  GitBranch,
+  CameraIcon,
 } from "lucide-react";
 
 // ヘッダーメニュー項目を移行
@@ -26,8 +29,20 @@ export const HEADER_MENU_ITEMS = [
     icon: FileEdit,
   },
   {
+    id: "fishStocking",
+    path: ROUTES.FISH_STOCKING,
+    label: "池入れ記録",
+    icon: Fish,
+  },
+  {
+    id: "fishTransfer",
+    path: ROUTES.FISH_TRANSFER,
+    label: "水槽間移動記録",
+    icon: GitBranch,
+  },
+  {
     id: "equipment",
-    path: ROUTES.EQUIPMENT_MANAGEMENT,
+    path: ROUTES.DATA_LISTING,
     label: "データ一覧",
     icon: FileText,
   },
@@ -35,7 +50,7 @@ export const HEADER_MENU_ITEMS = [
     id: "live",
     path: ROUTES.LIVE_MONITORING,
     label: "LIVE映像",
-    icon: Monitor,
+    icon: CameraIcon,
   },
   {
     id: "fixed",
@@ -78,27 +93,40 @@ export const SIDE_MENU_ITEMS = [
     icon: LayoutDashboard,
   },
   {
-    id: "monitoring",
-    label: "モニタリング",
+    id: "breeding",
+    path: ROUTES.BREEDING_MANAGEMENT,
+    label: "データ入力",
+    icon: FileEdit,
+  },
+  {
+    id: "fishStocking",
+    path: ROUTES.FISH_STOCKING,
+    label: "池入れ記録",
+    icon: Fish,
+  },
+  {
+    id: "fishTransfer",
+    path: ROUTES.FISH_TRANSFER,
+    label: "水槽間移動記録",
+    icon: GitBranch,
+  },
+  {
+    id: "dataListing",
+    path: ROUTES.DATA_LISTING,
+    label: "データ一覧",
+    icon: FileText,
+  },
+  {
+    id: "live",
+    path: ROUTES.LIVE_MONITORING,
+    label: "LIVE映像",
+    icon: CameraIcon,
+  },
+  {
+    id: "fixed",
+    path: ROUTES.FIXED_POINT_MONITORING,
+    label: "定点観測一覧",
     icon: Monitor,
-    subItems: [
-      {
-        id: "breeding",
-        path: ROUTES.BREEDING_MANAGEMENT,
-        label: "データ入力",
-      },
-      {
-        id: "equipment",
-        path: ROUTES.EQUIPMENT_MANAGEMENT,
-        label: "データ一覧",
-      },
-      { id: "live", path: ROUTES.LIVE_MONITORING, label: "LIVE映像" },
-      {
-        id: "fixed",
-        path: ROUTES.FIXED_POINT_MONITORING,
-        label: "定点観測一覧",
-      },
-    ],
   },
   {
     id: "alert",

@@ -34,37 +34,6 @@ export function randomInRange(
   return Math.round(value * multiplier) / multiplier;
 }
 
-// 周期的な変動を含む乱数生成（サイン波＋ランダムノイズ）
-export function cyclicRandom(
-  min: number,
-  max: number,
-  dayIndex: number,
-  cycleDays: number = 30,
-  noiseLevel: number = 0.3,
-  precision: number = 2
-): number {
-  // 基本的なサイン波形を生成
-  const midpoint = (max + min) / 2;
-  const amplitude = (max - min) / 2;
-
-  // サイン波のサイクル（cycleDaysで一周期）
-  const cyclePosition = (dayIndex % cycleDays) / cycleDays;
-  const sineValue = Math.sin(cyclePosition * Math.PI * 2);
-
-  // ノイズを追加
-  const noise = (Math.random() * 2 - 1) * noiseLevel;
-
-  // 最終値を計算
-  const value =
-    midpoint + sineValue * amplitude * (1 - noiseLevel) + noise * amplitude;
-
-  // 指定した精度で四捨五入
-  const multiplier = Math.pow(10, precision);
-  return (
-    Math.round(Math.max(min, Math.min(max, value)) * multiplier) / multiplier
-  );
-}
-
 // 飼育槽データ生成 - 時間ごとのデータパターン（24時間分）
 export function dailyPattern(
   baseValue: number,
@@ -87,23 +56,30 @@ export function dailyPattern(
   return values;
 }
 
-// ランダムな異常値を時々発生させる関数
-export function generateAnomalyValue(
-  normalValue: number,
-  normalMin: number,
-  normalMax: number,
-  anomalyChance: number = 0.05
+//各データのランダムな値を作る
+export function generateNaturalVariation(
+  baseValue: number,
+  normalVariationPercent: number = 0.05,
+  anomalyChance: number = 0.01,
+  anomalyVariationPercent: number = 0.3,
+  precision: number = 1
 ): number {
+  // ステップ①②: 正常値にわずかな変動を加える（-5%〜+5%）
+  const normalVariation =
+    baseValue * (1 + (Math.random() * 2 - 1) * normalVariationPercent);
+
+  // ステップ③: 稀に大きな変動を加える
+  let result;
   if (Math.random() < anomalyChance) {
-    // 異常値を生成（正常範囲外の値）
-    const isHigh = Math.random() > 0.5;
-    if (isHigh) {
-      return normalMax + randomInRange(normalMax * 0.1, normalMax * 0.5);
-    } else {
-      return normalMin - randomInRange(normalMin * 0.1, normalMin * 0.5);
-    }
+    // -30%〜+30%の範囲で異常値を生成
+    const anomalyFactor = 1 + (Math.random() * 2 - 1) * anomalyVariationPercent;
+    result = normalVariation * anomalyFactor;
+  } else {
+    result = normalVariation;
   }
-  return normalValue;
+
+  const multiplier = Math.pow(10, precision);
+  return Math.round(result * multiplier) / multiplier;
 }
 
 // 一日分の設備データを生成（1時間おき）
@@ -117,12 +93,12 @@ export function generateDailyEquipmentData(
   // 一日のベースとなる値を決定（日々の変動を表現）
   const dayIndex = Math.floor(baseDate.getTime() / (24 * 60 * 60 * 1000));
 
-  const baseResidualChlorine1 = cyclicRandom(3.0, 4.5, dayIndex, 15, 0.2);
-  const baseResidualChlorine2 = cyclicRandom(0.0, 0.5, dayIndex, 10, 0.3);
-  const baseAmmonia = cyclicRandom(0.1, 0.8, dayIndex, 20, 0.4);
-  const baseCurrent = cyclicRandom(140, 160, dayIndex, 30, 0.1);
-  const baseFlowRate = cyclicRandom(28, 32, dayIndex, 25, 0.2);
-  const baseTemperature = cyclicRandom(24, 27, dayIndex, 60, 0.15);
+  const baseResidualChlorine1 = 3.8;
+  const baseResidualChlorine2 = 0.0;
+  const baseAmmonia = 0.45;
+  const baseCurrent = 12.0;
+  const baseFlowRate = 30.53;
+  const baseTemperature = 25.0;
 
   // 極性は3日に1回程度切り替わると仮定
   const polarityChange = dayIndex % 3 === 0;
@@ -134,14 +110,6 @@ export function generateDailyEquipmentData(
     ? "B"
     : "A";
 
-  // 日内の時間変動パターンを生成
-  const residualChlorine1Pattern = dailyPattern(baseResidualChlorine1, 0.1);
-  const residualChlorine2Pattern = dailyPattern(baseResidualChlorine2, 0.15);
-  const ammoniaPattern = dailyPattern(baseAmmonia, 0.2);
-  const currentPattern = dailyPattern(baseCurrent, 0.05);
-  const flowRatePattern = dailyPattern(baseFlowRate, 0.1);
-  const temperaturePattern = dailyPattern(baseTemperature, 0.05);
-
   // 24時間分のデータを生成
   for (let hour = 0; hour < 24; hour++) {
     const timestamp = new Date(baseDate);
@@ -151,13 +119,13 @@ export function generateDailyEquipmentData(
       id: uuidv4(),
       timestamp: timestamp.toISOString(),
       lineId,
-      residualChlorine1: residualChlorine1Pattern[hour],
-      residualChlorine2: residualChlorine2Pattern[hour],
-      ammonia: ammoniaPattern[hour],
-      current: currentPattern[hour],
-      flowRate: flowRatePattern[hour],
+      residualChlorine1: generateNaturalVariation(baseResidualChlorine1),
+      residualChlorine2: generateNaturalVariation(baseResidualChlorine2),
+      ammonia: generateNaturalVariation(baseAmmonia),
+      current: generateNaturalVariation(baseCurrent),
+      flowRate: generateNaturalVariation(baseFlowRate),
       polarity,
-      temperature: temperaturePattern[hour],
+      temperature: generateNaturalVariation(baseTemperature),
     });
   }
 
@@ -172,38 +140,21 @@ export function generateDailyBreedingPlcData(
 ): BreedingPlcData[] {
   const data: BreedingPlcData[] = [];
   const baseDate = new Date(date);
-  const dayIndex = Math.floor(baseDate.getTime() / (24 * 60 * 60 * 1000));
 
   // 各タンクごとに生成
   for (const tankId of tankIds) {
-    // タンクごとの基準値（タンクによって少し異なる値を設定）
-    const tankIndex = parseInt(tankId.split("-")[1]);
-    const tankFactor = 1 + (tankIndex - 3) * 0.05; // タンク番号によって少し値を変える
-
-    const baseOxygen = cyclicRandom(75, 95, dayIndex, 15, 0.2) * tankFactor;
-    const basePh = cyclicRandom(6.8, 7.5, dayIndex, 20, 0.1) * tankFactor;
-    const baseTemperature =
-      cyclicRandom(24, 27, dayIndex, 60, 0.15) * tankFactor;
-
-    // 日内変動パターン
-    const oxygenPattern = dailyPattern(baseOxygen, 0.15);
-    const phPattern = dailyPattern(basePh, 0.05);
-    const temperaturePattern = dailyPattern(baseTemperature, 0.08);
+    const baseOxygen = 80;
+    const basePh = 7.0;
+    const baseTemperature = 26.0;
 
     // 24時間分のデータを生成
     for (let hour = 0; hour < 24; hour++) {
       const timestamp = new Date(baseDate);
       timestamp.setHours(hour, 0, 0, 0);
 
-      // 時々異常値を混ぜる
-      const oxygen = generateAnomalyValue(oxygenPattern[hour], 70, 100, 0.03);
-      const ph = generateAnomalyValue(phPattern[hour], 6.5, 8.0, 0.02);
-      const temperature = generateAnomalyValue(
-        temperaturePattern[hour],
-        24,
-        27,
-        0.03
-      );
+      const oxygen = generateNaturalVariation(baseOxygen);
+      const ph = generateNaturalVariation(basePh);
+      const temperature = generateNaturalVariation(baseTemperature);
 
       data.push({
         id: uuidv4(),
@@ -307,14 +258,7 @@ export function generateDailyFishCountData(
         const mortality = Math.floor(Math.random() * 5) + 1; // 1-5匹
 
         // 症状のリスト
-        const symptoms = [
-          "原因不明",
-          "食欲不振",
-          "体色異常",
-          "遊泳異常",
-          "呼吸困難",
-          "寄生虫感染の疑い",
-        ];
+        const symptoms = ["原因不明", "飛び出し", "魚病"];
         const symptom = symptoms[Math.floor(Math.random() * symptoms.length)];
 
         data.push({
@@ -599,12 +543,12 @@ export function generateAllData(startDate: Date, endDate: Date) {
       id: "current",
       name: "電解電流値",
       unit: "A",
-      normalMin: 140,
-      normalMax: 160,
-      warningMin: 130,
-      warningMax: 170,
-      dangerMin: 120,
-      dangerMax: 180,
+      normalMin: 11.0,
+      normalMax: 13.0,
+      warningMin: 10.0,
+      warningMax: 14.0,
+      dangerMin: 9.0,
+      dangerMax: 15.0,
     },
     {
       id: "flowRate",
@@ -791,7 +735,9 @@ export function generateAllData(startDate: Date, endDate: Date) {
 export function generateYearData() {
   const today = new Date();
   const startDate = new Date(today);
-  startDate.setFullYear(today.getFullYear() - 1);
-
+  //startDate.setFullYear(today.getFullYear() - 1);
+  //重いので2カ月分のデータ
+  //startDate.setMonth(today.getMonth() - 2);
+  startDate.setDate(today.getDate() - 14);
   return generateAllData(startDate, today);
 }

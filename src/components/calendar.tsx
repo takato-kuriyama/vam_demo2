@@ -19,7 +19,7 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-3 bg-white", className)}
       locale={ja}
       formatters={{
         formatMonthCaption: (date) =>
@@ -50,7 +50,7 @@ function Calendar({
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-gray-200"
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
