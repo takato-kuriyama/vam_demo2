@@ -21,6 +21,8 @@ import { PageContainer } from "../../components/layouts/PageContainer";
 import { COLORS } from "../../constants/ui";
 import { PAGE_TITLES } from "../../constants/routes";
 import { useDataStore } from "../../hooks/useDataStore";
+import { InputField } from "../../components/ui/form-field";
+import { DataCard } from "../../components/ui/data-card";
 
 // ユーザーデータの型定義（data/mockDataStore.tsから参照するのがベターですが、
 // このページでだけ使用するのでここで定義）
@@ -72,32 +74,26 @@ const UserMasterDialog: React.FC<UserMasterDialogProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">名前：</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              placeholder="名前を入力"
-              required
-            />
-          </div>
+          <InputField
+            id="name"
+            label="名前："
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="名前を入力"
+            required
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="email">メールアドレス：</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              placeholder="メールアドレスを入力"
-              required
-            />
-          </div>
+          <InputField
+            id="email"
+            label="メールアドレス："
+            type="email"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+            placeholder="メールアドレスを入力"
+            required
+          />
 
           <div className="space-y-2">
             <Label htmlFor="password">パスワード：</Label>
@@ -249,35 +245,25 @@ const UserMaster = () => {
       {/* ユーザー一覧 */}
       <div className="grid grid-cols-1 gap-3">
         {filteredUsers.map((userData) => (
-          <Card
+          <DataCard
             key={userData.id}
-            className={`transition-all duration-300 hover:shadow-lg hover:scale-102 ${COLORS.border.primary} rounded-xl`}
+            onAction={() => setSelectedUserData(userData)}
+            actionLabel="編集"
+            actionIcon={<Settings className="h-4 w-4" />}
           >
-            <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div className="space-y-1">
-                  <p className="font-semibold text-lg">{userData.name}</p>
-                  <p className="text-sm text-gray-500">{userData.email}</p>
-                  <p className="text-sm text-gray-500">
-                    権限:{" "}
-                    {userData.role === "admin"
-                      ? "管理者"
-                      : userData.role === "user"
-                      ? "一般"
-                      : "閲覧のみ"}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  onClick={() => setSelectedUserData(userData)}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50"
-                >
-                  <Settings className="h-4 w-4" />
-                  編集
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            <div className="space-y-1">
+              <p className="font-semibold text-lg">{userData.name}</p>
+              <p className="text-sm text-gray-500">{userData.email}</p>
+              <p className="text-sm text-gray-500">
+                権限:{" "}
+                {userData.role === "admin"
+                  ? "管理者"
+                  : userData.role === "user"
+                  ? "一般"
+                  : "閲覧のみ"}
+              </p>
+            </div>
+          </DataCard>
         ))}
       </div>
 

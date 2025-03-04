@@ -15,7 +15,7 @@ import {
 } from "../components/ui/alert-dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { PageContainer } from "../layouts/PageContainer";
+import { PageContainer } from "../components/layouts/PageContainer";
 import { PAGE_TITLES } from "../constants/routes";
 import { TANKS } from "../constants/masterData/tanks";
 import {

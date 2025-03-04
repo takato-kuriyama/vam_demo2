@@ -22,9 +22,10 @@ import { COLORS } from "../../constants/ui";
 import { PAGE_TITLES } from "../../constants/routes";
 import { useMasterData } from "../../hooks/useDataStore";
 import { TankMaster as TankMasterType } from "../../types/dataModels";
+import { FilterPanel } from "../../components/ui/filter-panel";
 
 const TankMasterPage = () => {
-  const { masterData, isLoading, updateTank } = useMasterData();
+  const { masterData, isLoading, error, updateTank } = useMasterData();
   const [selectedTank, setSelectedTank] = useState<TankMasterType | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   // 新規作成は不要なので削除
@@ -81,26 +82,19 @@ const TankMasterPage = () => {
   return (
     <PageContainer title={PAGE_TITLES.TANK_MASTER}>
       {/* 検索バーと追加ボタン */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            className="pl-10"
-            placeholder="飼育槽を検索"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setActiveOnly(!activeOnly)}
-            className="whitespace-nowrap"
-          >
-            {activeOnly ? "すべて表示" : "有効のみ表示"}
-          </Button>
-        </div>
-      </div>
+      <FilterPanel
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="飼育槽を検索"
+      >
+        <Button
+          variant="outline"
+          onClick={() => setActiveOnly(!activeOnly)}
+          className="whitespace-nowrap"
+        >
+          {activeOnly ? "すべて表示" : "有効のみ表示"}
+        </Button>
+      </FilterPanel>
 
       {/* ライン別にタンク一覧を表示 */}
       <div className="space-y-6">

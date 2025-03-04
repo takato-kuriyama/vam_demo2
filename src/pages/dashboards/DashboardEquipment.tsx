@@ -8,6 +8,7 @@ import { useMasterData, useEquipmentData } from "../../hooks/useDataStore";
 import { EquipmentData, ParameterDefinition } from "../../types/dataModels";
 import ParameterTrendChart from "../../components/charts/ParameterTrendChart";
 import { ParameterCard } from "../../components/features/ParameterCard";
+import { TabContainer } from "../../components/ui/tab-container";
 
 const DashboardEquipment = () => {
   // 詳細ダイアログの表示状態
@@ -130,34 +131,18 @@ const DashboardEquipment = () => {
   return (
     <PageContainer title={PAGE_TITLES.DASHBOARD_EQUIPMENT}>
       {/* ライン選択タブ */}
-      <div
-        className={`bg-white rounded-2xl shadow-sm border ${COLORS.border.primary} mb-8 p-2`}
-      >
-        <Tabs
-          value={selectedLineId}
-          onValueChange={setSelectedLineId}
-          className="w-full"
-        >
-          <div className="w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            <TabsList className="flex justify-start space-x-2">
-              {masterData.lines
-                .filter((line) => line.active)
-                .sort((a, b) => a.order - b.order)
-                .map((line) => (
-                  <TabsTrigger
-                    key={line.id}
-                    value={line.id}
-                    className="data-[state=active]:bg-blue-500 data-[state=active]:text-white 
-                             px-4 py-2 rounded-xl bg-slate-100 text-slate-600 
-                             hover:bg-slate-200 transition-all duration-200"
-                  >
-                    {line.name}
-                  </TabsTrigger>
-                ))}
-            </TabsList>
-          </div>
-        </Tabs>
-      </div>
+      <TabContainer
+        items={masterData.lines
+          .filter((line) => line.active)
+          .sort((a, b) => a.order - b.order)
+          .map((line) => ({
+            id: line.id,
+            label: line.name,
+          }))}
+        activeTab={selectedLineId}
+        onTabChange={setSelectedLineId}
+        className="mb-6"
+      />
 
       {/* ライン情報表示 */}
       {currentLineData ? (

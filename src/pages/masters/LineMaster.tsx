@@ -15,6 +15,7 @@ import { COLORS } from "../../constants/ui";
 import { PAGE_TITLES } from "../../constants/routes";
 import { useMasterData } from "../../hooks/useDataStore";
 import { LineMaster } from "../../types/dataModels";
+import { DataCard } from "../../components/ui/data-card";
 
 const LineMasterPage = () => {
   const { masterData, isLoading, updateLine } = useMasterData();
@@ -55,29 +56,17 @@ const LineMasterPage = () => {
       {/* ろ過ライン一覧 */}
       <div className="grid grid-cols-1 gap-3">
         {filteredLines.map((line) => (
-          <Card
+          <DataCard
             key={line.id}
-            className={`transition-all duration-300 hover:shadow-lg hover:scale-102 ${COLORS.border.primary} rounded-xl`}
+            onAction={() => {
+              setSelectedLine(line);
+              setIsEditDialogOpen(true);
+            }}
+            actionLabel="編集"
+            actionIcon={<Settings className="h-4 w-4" />}
           >
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <p className="font-semibold text-lg">{line.name}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setSelectedLine(line);
-                    setIsEditDialogOpen(true);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50"
-                >
-                  <Settings className="h-4 w-4" />
-                  編集
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            <p className="font-semibold text-lg">{line.name}</p>
+          </DataCard>
         ))}
       </div>
 

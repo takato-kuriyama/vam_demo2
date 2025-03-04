@@ -30,13 +30,10 @@ import {
   DialogFooter,
   DialogDescription,
 } from "../../components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../components/ui/popover";
-import { Calendar } from "../../components/ui/calendar";
 import { useMasterData } from "../../hooks/useDataStore";
+import { DatePicker } from "../../components/ui/date-picker";
+import { FormField } from "../../components/ui/form-field";
+import { InputField } from "../../components/ui/form-field";
 
 // 仕入れ先の定義
 const SUPPLIERS = [
@@ -280,28 +277,13 @@ const FishStocking: React.FC = () => {
 
           <div className="space-y-4 py-4">
             {/* 日付選択 */}
-            <div className="space-y-2">
-              <Label htmlFor="date">日付 *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    {format(selectedDate, "yyyy/MM/dd", { locale: ja })}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateChange}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            <FormField id="date" label="日付" required>
+              <DatePicker
+                date={selectedDate}
+                onSelect={handleDateChange}
+                placeholder="日付を選択"
+              />
+            </FormField>
 
             {/* 仕入れ先選択 */}
             <div className="space-y-2">
@@ -379,30 +361,26 @@ const FishStocking: React.FC = () => {
             </div>
 
             {/* 尾数入力 */}
-            <div className="space-y-2">
-              <Label htmlFor="quantity">尾数 *</Label>
-              <Input
-                id="quantity"
-                name="quantity"
-                type="number"
-                value={formData.quantity || ""}
-                onChange={handleInputChange}
-                min={1}
-                required
-              />
-            </div>
+            <InputField
+              id="quantity"
+              label="尾数"
+              name="quantity"
+              type="number"
+              value={formData.quantity || ""}
+              onChange={handleInputChange}
+              min={1}
+              required
+            />
 
             {/* メモ入力 */}
-            <div className="space-y-2">
-              <Label htmlFor="memo">メモ</Label>
-              <Input
-                id="memo"
-                name="memo"
-                value={formData.memo || ""}
-                onChange={handleInputChange}
-                placeholder="特記事項があれば入力してください"
-              />
-            </div>
+            <InputField
+              id="memo"
+              label="メモ"
+              name="memo"
+              value={formData.memo || ""}
+              onChange={handleInputChange}
+              placeholder="特記事項があれば入力してください"
+            />
           </div>
 
           <DialogFooter>

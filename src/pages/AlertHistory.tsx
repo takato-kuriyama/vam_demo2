@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { format } from "date-fns";
-import { ja } from "date-fns/locale";
 import {
   CheckCircle,
   XCircle,
@@ -9,7 +7,6 @@ import {
   Calendar as CalendarIcon,
 } from "lucide-react";
 import { PageContainer } from "../components/layouts/PageContainer";
-import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
@@ -43,6 +40,8 @@ import { AlertData } from "../types/dataModels";
 import { ErrorMessage } from "../components/ui/error-message";
 import { formatDateForDisplay } from "../lib/date-utils";
 import { formatValueWithUnit } from "../lib/format-utils";
+import { DataCard } from "../components/ui/data-card";
+import { StatusBadge } from "../components/ui/status-badge";
 
 const AlertHistory = () => {
   // useAlertDataフックを使用してアラートデータとロード状態を取得
@@ -254,102 +253,79 @@ const AlertHistory = () => {
       <div className="grid grid-cols-1 gap-3">
         {alerts.length > 0 ? (
           alerts.map((alert) => (
-            <Card
+            <DataCard
               key={alert.id}
-              className={`h-full transition-all duration-300 hover:shadow-lg hover:scale-102 ${
-                COLORS.border.primary
-              } rounded-xl
-                ${!alert.resolved ? "bg-red-50" : ""}`}
+              highlight={!alert.resolved}
+              className={!alert.resolved ? "bg-red-50" : ""}
+              onAction={() => setSelectedAlert(alert)}
+              actionIcon={<ExternalLink className="h-4 w-4" />}
             >
-              <CardContent
-                className="p-4 cursor-pointer"
+              <div
+                className="flex items-start gap-4"
                 onClick={() => setSelectedAlert(alert)}
               >
-                <div className="flex flex-col sm:flex-row justify-between gap-3">
-                  <div className="flex items-start gap-4">
-                    <div onClick={(e) => e.stopPropagation()} className="mt-1">
-                      <Checkbox
-                        id={`alert-${alert.id}`}
-                        checked={checkedAlerts.includes(alert.id)}
-                        onCheckedChange={() => handleCheckboxChange(alert.id)}
-                        disabled={alert.resolved}
-                        className="h-5 w-5"
-                      />
+                <div onClick={(e) => e.stopPropagation()} className="mt-1">
+                  <Checkbox
+                    id={`alert-${alert.id}`}
+                    checked={checkedAlerts.includes(alert.id)}
+                    onCheckedChange={() => handleCheckboxChange(alert.id)}
+                    disabled={alert.resolved}
+                    className="h-5 w-5"
+                  />
+                </div>
+
+                <div
+                  className={`flex flex-col space-y-2 ${
+                    !alert.resolved ? "text-red-800" : "text-gray-800"
+                  }`}
+                >
+                  <div
+                    className={`flex flex-col space-y-2
+                        ${!alert.resolved ? "text-red-800" : "text-gray-800"}`}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-lg">
+                        {formatDateForDisplay(alert.timestamp)}
+                      </p>
+                      <p className="font-semibold text-lg">{alert.paramName}</p>
+                      <div className="border border-gray-300 flex p-1 px-2 gap-2 rounded">
+                        <p className="text-sm text-gray-800">
+                          {getLineName(alert.lineId)}
+                        </p>
+                        {alert.tankId && (
+                          <p className="text-sm text-gray-800">
+                            {getTankName(alert.tankId)}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
-                    <div
-                      className={`flex flex-col space-y-2
-                        ${!alert.resolved ? "text-red-800" : "text-gray-800"}`}
-                    >
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-lg">
-                          {formatDateForDisplay(alert.timestamp)}
-                        </p>
-                        <p className="font-semibold text-lg">
-                          {alert.paramName}
-                        </p>
-                        <div className="border border-gray-300 flex p-1 px-2 gap-2 rounded">
-                          <p className="text-sm text-gray-800">
-                            {getLineName(alert.lineId)}
-                          </p>
-                          {alert.tankId && (
-                            <p className="text-sm text-gray-800">
-                              {getTankName(alert.tankId)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-gray-600">
+                        検知値: {formatValueWithUnit(alert.paramValue, "", 2)}
+                      </span>
+                      <span className="text-gray-600">
+                        基準値: {formatValueWithUnit(alert.thresholdMin, "", 2)}
+                        ～{formatValueWithUnit(alert.thresholdMax, "", 2)}
+                      </span>
+                    </div>
 
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-gray-600">
-                          検知値: {formatValueWithUnit(alert.paramValue, "", 2)}
+                    <div className="flex items-center gap-2">
+                      <StatusBadge
+                        status={alert.resolved ? "success" : "error"}
+                        text={alert.resolved ? "解決済み" : "未解決"}
+                        showIcon
+                      />
+                      {alert.resolvedAt && (
+                        <span className="text-sm text-gray-500">
+                          ({formatDateForDisplay(alert.resolvedAt)})
                         </span>
-                        <span className="text-gray-600">
-                          基準値:{" "}
-                          {formatValueWithUnit(alert.thresholdMin, "", 2)}～
-                          {formatValueWithUnit(alert.thresholdMax, "", 2)}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {alert.resolved ? (
-                          <CheckCircle className="text-green-500 h-4 w-4" />
-                        ) : (
-                          <XCircle className="text-red-500 h-4 w-4" />
-                        )}
-                        <span
-                          className={`text-sm ${
-                            alert.resolved ? "text-green-500" : "text-red-500"
-                          }`}
-                        >
-                          {alert.resolved ? "解決済み" : "未解決"}
-                        </span>
-                        {alert.resolvedAt && (
-                          <span className="text-sm text-gray-500">
-                            (
-                            {alert.resolvedAt &&
-                              formatDateForDisplay(alert.resolvedAt)}
-                            )
-                          </span>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
-
-                  <Button
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedAlert(alert);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 self-end sm:self-auto"
-                  >
-                    詳細
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </DataCard>
           ))
         ) : (
           <div className="text-center py-8 text-gray-500">

@@ -10,19 +10,7 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { Label } from "../../components/ui/label";
-import { Calendar } from "../../components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../components/ui/popover";
-import {
-  ExternalLink,
-  Search,
-  CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { ExternalLink, Search } from "lucide-react";
 import { FixedPointMonitoringDialog } from "../../components/dialogs/FixedPointMonitoringDialog";
 import { PageContainer } from "../../components/layouts/PageContainer";
 import { COLORS } from "../../constants/ui";
@@ -34,6 +22,9 @@ import { ja } from "date-fns/locale";
 import { FixedPointData } from "../../types/dataModels";
 import { Switch } from "../../components/ui/switch";
 import { Badge } from "../../components/ui/badge";
+import { DatePicker } from "../../components/ui/date-picker";
+import { Pagination } from "../../components/ui/pagination";
+import { Tabs, TabsContent } from "../ui/tabs";
 
 const FixedPointMonitoring = () => {
   // 選択した定点観測データ
@@ -240,49 +231,6 @@ const FixedPointMonitoring = () => {
     }
   };
 
-  // ページネーションナビゲーションに表示するページ番号を生成
-  const getPaginationNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5; // 最大表示ページ数
-
-    // 常に最初のページは表示
-    pages.push(1);
-
-    // 中間ページの表示ロジック
-    if (totalPages <= maxVisiblePages) {
-      // 2〜totalPagesまでを追加
-      for (let i = 2; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // 現在のページの前後を表示
-      let startPage = Math.max(2, currentPage - 1);
-      let endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      // ... を追加する場合
-      if (startPage > 2) {
-        pages.push("...");
-      }
-
-      // 中間ページを追加
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-
-      // ... を追加する場合
-      if (endPage < totalPages - 1) {
-        pages.push("...");
-      }
-
-      // 常に最後のページは表示（totalPages > 1の場合）
-      if (totalPages > 1) {
-        pages.push(totalPages);
-      }
-    }
-
-    return pages;
-  };
-
   // ラインオプションを取得
   const lineOptions = dataStore.data?.masterData?.lines || [];
 
@@ -382,63 +330,21 @@ const FixedPointMonitoring = () => {
         {/* 日付範囲選択 */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label>期間：</Label>
-
             {/* 開始日 */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-fit pl-3 pr-2 flex justify-start text-left font-normal"
-                >
-                  {dateRange.startDate ? (
-                    format(dateRange.startDate, "yyyy/MM/dd", { locale: ja })
-                  ) : (
-                    <span className="text-gray-400">開始日</span>
-                  )}
-                  <CalendarIcon className="ml-2 h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dateRange.startDate || undefined}
-                  onSelect={(date) =>
-                    handleDateRangeChange("start", date || null)
-                  }
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              date={dateRange.startDate || undefined}
+              onSelect={(date) => handleDateRangeChange("start", date)}
+              placeholder="開始日"
+            />
 
             <span>～</span>
 
             {/* 終了日 */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-fit pl-3 pr-2 flex justify-start text-left font-normal"
-                >
-                  {dateRange.endDate ? (
-                    format(dateRange.endDate, "yyyy/MM/dd", { locale: ja })
-                  ) : (
-                    <span className="text-gray-400">終了日</span>
-                  )}
-                  <CalendarIcon className="ml-2 h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dateRange.endDate || undefined}
-                  onSelect={(date) =>
-                    handleDateRangeChange("end", date || null)
-                  }
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              date={dateRange.endDate || undefined}
+              onSelect={(date) => handleDateRangeChange("end", date)}
+              placeholder="終了日"
+            />
           </div>
         </div>
       </div>
@@ -500,51 +406,14 @@ const FixedPointMonitoring = () => {
 
       {/* ページネーション */}
       {totalPages > 1 && (
-        <div className="flex flex-col items-center mt-6 gap-2">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {getPaginationNumbers().map((page, index) =>
-              page === "..." ? (
-                <span key={`ellipsis-${index}`} className="px-2">
-                  ...
-                </span>
-              ) : (
-                <Button
-                  key={`page-${page}`}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePageChange(page as number)}
-                  className="w-9"
-                >
-                  {page}
-                </Button>
-              )
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="text-sm text-gray-500">
-            全 {fixedPointData.length} 件中 {startIndex + 1}-
-            {Math.min(startIndex + itemsPerPage, fixedPointData.length)}{" "}
-            件を表示
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={itemsPerPage}
+          totalItems={filteredFixedPointData.length}
+          onPageChange={handlePageChange}
+          onPageSizeChange={() => {}} // この画面ではページサイズ変更なし
+        />
       )}
 
       {/* 詳細ダイアログ */}

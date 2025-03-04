@@ -1,6 +1,7 @@
 import React from "react";
 import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { StatusType } from "../../constants/ui";
+import { StatusBadge } from "../ui/status-badge";
 
 interface ParameterCardProps {
   name: string;
@@ -58,9 +59,8 @@ export const ParameterCard: React.FC<ParameterCardProps> = ({
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-medium text-slate-700">{name}</h3>
-          <p className="text-sm text-slate-500">{statusText}</p>
+          <StatusBadge status={status} text={statusText} size="sm" />
         </div>
-        {getStatusIcon(status)}
       </div>
 
       <div className="flex items-baseline">

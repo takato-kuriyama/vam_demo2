@@ -40,6 +40,8 @@ import {
   useBreedingData,
   useFeedingData,
 } from "../../hooks/useDataStore";
+import { Pagination } from "../../components/ui/pagination";
+import { exportTableDataToCsv } from "../../lib/export-utils";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
@@ -213,60 +215,12 @@ const BreedingDataTable = () => {
 
   // CSVダウンロード機能
   const downloadCSV = () => {
-    // 選択された列のヘッダー
-    const headers = AVAILABLE_COLUMNS.filter((col) =>
-      selectedColumns.includes(col.id)
-    ).map((col) => col.label);
-
-    // データ行の作成
-    const rows = filteredData.map((row) => {
-      return selectedColumns.map((colId) => {
-        if (colId === "date") {
-          return format(row.date, "yyyy/MM/dd", { locale: ja });
-        }
-        return row[colId] !== undefined
-          ? String(row[colId]).replace(/,/g, "、")
-          : ""; // カンマをリプレース
-      });
-    });
-
-    // CSVデータをダブルクォートで囲む処理
-    const escapeCsv = (data: string) => `"${data.replace(/"/g, '""')}"`;
-
-    // CSVデータの作成（各フィールドをダブルクォートで囲む）
-    const csvContent = [
-      headers.map(escapeCsv).join(","),
-      ...rows.map((row) => row.map(escapeCsv).join(",")),
-    ].join("\n");
-
-    // UTF-8 BOMを追加
-    const BOM = "\uFEFF";
-    const csvWithBOM = BOM + csvContent;
-
-    // 別ウィンドウで開かせる（このアプローチではブラウザが文字エンコーディングを適切に処理する）
-    const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    // Excelで開くために.xls拡張子を使用（Excelはこれを認識してインポートウィザードを起動する）
-    const filename = `飼育槽data_${format(new Date(), "yyyyMMdd")}.csv`;
-
-    if (navigator.msSaveBlob) {
-      // IEとEdge用
-      navigator.msSaveBlob(blob, filename);
-    } else {
-      // その他のブラウザ
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // 数秒後にBlob URLをクリーンアップ
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
+    exportTableDataToCsv(
+      AVAILABLE_COLUMNS,
+      filteredData,
+      selectedColumns,
+      "飼育槽data"
+    );
   };
 
   if (isBreedingLoading || isFeedingLoading || isMasterLoading) {
@@ -492,56 +446,18 @@ const BreedingDataTable = () => {
 
           {/* ページネーション */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-
-                <span className="text-sm text-gray-600">
-                  {currentPage} / {totalPages}
-                </span>
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">表示件数：</span>
-                <Select
-                  value={pageSize.toString()}
-                  onValueChange={(value) => {
-                    setPageSize(parseInt(value));
-                    setCurrentPage(1); // ページサイズ変更時は1ページ目に戻る
-                  }}
-                >
-                  <SelectTrigger className="w-16">
-                    <SelectValue placeholder="20" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredData.length}
+              onPageChange={(page) => setCurrentPage(page)}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1); // ページサイズ変更時は1ページ目に戻る
+              }}
+              pageSizeOptions={[10, 20, 50, 100]}
+            />
           )}
         </div>
       </CardContent>

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Sheet, SheetContent } from "../components/ui/sheet";
+import { Sheet, SheetContent } from "../ui/sheet";
 import { AlertTriangle, Menu, ArrowRight, Fish } from "lucide-react";
-import { ROUTES } from "../constants/routes";
-import { COLORS } from "../constants/ui";
-import { HEADER_MENU_ITEMS, SIDE_MENU_ITEMS } from "../constants/menu";
-import { useAlertData } from "../hooks/useDataStore";
+import { ROUTES } from "../../constants/routes";
+import { COLORS } from "../../constants/ui";
+import { HEADER_MENU_ITEMS, SIDE_MENU_ITEMS } from "../../constants/menu";
+import { useAlertData } from "../../hooks/useDataStore";
 
 interface MainLayoutProps {
   children: React.ReactNode;

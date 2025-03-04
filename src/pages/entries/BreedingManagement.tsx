@@ -785,31 +785,6 @@ const BreedingManagement: React.FC = () => {
                     </div>
                   )}
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="transferIn">移動IN (匹)</Label>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      id="transferIn"
-                      name="transferIn"
-                      value={formData.transferIn}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="transferOut">移動OUT (匹)</Label>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      id="transferOut"
-                      name="transferOut"
-                      value={formData.transferOut}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
               </div>
 
               {/* カスタム項目 */}

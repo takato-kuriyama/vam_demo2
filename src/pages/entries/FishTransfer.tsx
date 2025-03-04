@@ -37,6 +37,8 @@ import {
 } from "../../components/ui/popover";
 import { Calendar } from "../../components/ui/calendar";
 import { useMasterData } from "../../hooks/useDataStore";
+import { DatePicker } from "../../components/ui/date-picker";
+import { FormField } from "../../components/ui/form-field";
 
 // 池入れ記録の型定義 (実際のアプリではストックから取得)
 interface StockingRecord {
@@ -329,28 +331,13 @@ const FishTransfer: React.FC = () => {
 
           <div className="space-y-4 py-4">
             {/* 日付選択 */}
-            <div className="space-y-2">
-              <Label htmlFor="date">日付 *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    {format(selectedDate, "yyyy/MM/dd", { locale: ja })}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateChange}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            <FormField id="date" label="日付" required>
+              <DatePicker
+                date={selectedDate}
+                onSelect={handleDateChange}
+                placeholder="日付を選択"
+              />
+            </FormField>
 
             {/* 移動元水槽選択 */}
             <div className="space-y-2">

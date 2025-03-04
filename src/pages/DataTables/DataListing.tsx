@@ -11,6 +11,7 @@ import { COLORS } from "../../constants/ui";
 import BreedingDataTable from "./BreedingDataTable";
 import EquipmentDataTable from "./EquipmentDataTable";
 import MortalityDataTable from "./MortalityDataTable";
+import { TabContainer } from "../../components/ui/tab-container";
 
 // メインのデータ一覧ページコンポーネント
 const DataListing = () => {
@@ -22,53 +23,31 @@ const DataListing = () => {
       <div className="space-y-6">
         {/* データ種類選択タブ */}
         <div
-          className={`p-2 border ${COLORS.border.primary} rounded-xl shadow mb-4`}
+          className={`border ${COLORS.border.primary} rounded-xl shadow mb-4`}
         >
-          <Tabs
-            defaultValue="breeding"
-            value={activeTab}
-            onValueChange={setActiveTab}
-          >
-            <div className="w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
-              <TabsList className="flex justify-start space-x-2">
-                <TabsTrigger
-                  value="breeding"
-                  className="data-[state=active]:bg-blue-500 data-[state=active]:text-white 
-                             px-4 py-2 rounded-xl bg-slate-100 text-slate-600 
-                             hover:bg-slate-200 transition-all duration-200"
-                >
-                  飼育槽データ
-                </TabsTrigger>
-                <TabsTrigger
-                  value="equipment"
-                  className="data-[state=active]:bg-blue-500 data-[state=active]:text-white 
-                             px-4 py-2 rounded-xl bg-slate-100 text-slate-600 
-                             hover:bg-slate-200 transition-all duration-200"
-                >
-                  ろ過部データ
-                </TabsTrigger>
-                <TabsTrigger
-                  value="mortality"
-                  className="data-[state=active]:bg-blue-500 data-[state=active]:text-white 
-                             px-4 py-2 rounded-xl bg-slate-100 text-slate-600 
-                             hover:bg-slate-200 transition-all duration-200"
-                >
-                  斃死データ
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          <TabContainer
+            items={[
+              { id: "breeding", label: "飼育槽データ" },
+              { id: "equipment", label: "ろ過部データ" },
+              { id: "mortality", label: "斃死データ" },
+            ]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
 
-            {/* タブコンテンツ */}
-            <TabsContent value="breeding">
-              <BreedingDataTable />
-            </TabsContent>
-            <TabsContent value="equipment">
-              <EquipmentDataTable />
-            </TabsContent>
-            <TabsContent value="mortality">
-              <MortalityDataTable />
-            </TabsContent>
-          </Tabs>
+          <div className="p-4">
+            <Tabs value={activeTab}>
+              <TabsContent value="breeding">
+                <BreedingDataTable />
+              </TabsContent>
+              <TabsContent value="equipment">
+                <EquipmentDataTable />
+              </TabsContent>
+              <TabsContent value="mortality">
+                <MortalityDataTable />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </PageContainer>

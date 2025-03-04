@@ -8,6 +8,7 @@ import {
 import { PAGE_TITLES } from "../../constants/routes";
 import { COLORS } from "../../constants/ui";
 import { PageContainer } from "../../components/layouts/PageContainer";
+import { TabContainer } from "../../components/ui/tab-container";
 
 const LiveMonitoring = () => {
   const [selectedLine, setSelectedLine] = useState<string>();
@@ -15,25 +16,17 @@ const LiveMonitoring = () => {
 
   return (
     <PageContainer title={PAGE_TITLES.LIVE_MONITORING}>
-      <div
-        className={`p-2 border ${COLORS.border.primary} rounded-xl shadow mb-4`}
-      >
-        <Tabs defaultValue={Line[0]}>
-          <div className="w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            <TabsList className="flex justify-start space-x-2">
-              {Line.map((line) => (
-                <TabsTrigger
-                  key={line}
-                  value={line}
-                  onClick={() => setSelectedLine(line)}
-                  className={`data-[state=active]:bg-blue-100 px-4 py-2 rounded-xl shadow bg-gray-50`}
-                >
-                  {line}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-          <div>
+      <div className={`border ${COLORS.border.primary} rounded-xl shadow mb-4`}>
+        <TabContainer
+          items={Line.map((line) => ({
+            id: line,
+            label: line,
+          }))}
+          activeTab={selectedLine || Line[0]}
+          onTabChange={setSelectedLine}
+        />
+        <div className="p-4">
+          <Tabs value={selectedLine || Line[0]}>
             <TabsContent value="Aライン">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5].map((num) => (
@@ -56,8 +49,8 @@ const LiveMonitoring = () => {
                 ))}
               </div>
             </TabsContent>
-          </div>
-        </Tabs>
+          </Tabs>
+        </div>
       </div>
     </PageContainer>
   );

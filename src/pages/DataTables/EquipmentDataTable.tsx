@@ -36,6 +36,8 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useMasterData, useEquipmentData } from "../../hooks/useDataStore";
+import { FilterPanel } from "../../components/ui/filter-panel";
+import { exportTableDataToCsv } from "../../lib/export-utils";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
@@ -176,60 +178,12 @@ const EquipmentDataTable = () => {
 
   // CSVダウンロード機能
   const downloadCSV = () => {
-    // 選択された列のヘッダー
-    const headers = AVAILABLE_COLUMNS.filter((col) =>
-      selectedColumns.includes(col.id)
-    ).map((col) => col.label);
-
-    // データ行の作成
-    const rows = filteredData.map((row) => {
-      return selectedColumns.map((colId) => {
-        if (colId === "date") {
-          return format(row.date, "yyyy/MM/dd", { locale: ja });
-        }
-        return row[colId] !== undefined
-          ? String(row[colId]).replace(/,/g, "、")
-          : ""; // カンマをリプレース
-      });
-    });
-
-    // CSVデータをダブルクォートで囲む処理
-    const escapeCsv = (data: string) => `"${data.replace(/"/g, '""')}"`;
-
-    // CSVデータの作成（各フィールドをダブルクォートで囲む）
-    const csvContent = [
-      headers.map(escapeCsv).join(","),
-      ...rows.map((row) => row.map(escapeCsv).join(",")),
-    ].join("\n");
-
-    // UTF-8 BOMを追加
-    const BOM = "\uFEFF";
-    const csvWithBOM = BOM + csvContent;
-
-    // 別ウィンドウで開かせる（このアプローチではブラウザが文字エンコーディングを適切に処理する）
-    const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    // Excelで開くために.xls拡張子を使用（Excelはこれを認識してインポートウィザードを起動する）
-    const filename = `ろ過部data_${format(new Date(), "yyyyMMdd")}.csv`;
-
-    if (navigator.msSaveBlob) {
-      // IEとEdge用
-      navigator.msSaveBlob(blob, filename);
-    } else {
-      // その他のブラウザ
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // 数秒後にBlob URLをクリーンアップ
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
+    exportTableDataToCsv(
+      AVAILABLE_COLUMNS,
+      filteredData,
+      selectedColumns,
+      "ろ過部data"
+    );
   };
 
   if (isEquipmentLoading || isMasterLoading) {
@@ -245,89 +199,29 @@ const EquipmentDataTable = () => {
       <CardContent className="p-6">
         <div className="space-y-6">
           {/* フィルタリングエリア */}
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* 検索 */}
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  className="pl-10"
-                  placeholder="ライン名で検索"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* 日付範囲 */}
-            <div className="flex items-center gap-2">
-              <Label className="whitespace-nowrap">期間:</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-fit flex items-center gap-2"
-                  >
-                    {startDate
-                      ? format(startDate, "yyyy/MM/dd", { locale: ja })
-                      : "開始日"}
-                    <CalendarIcon className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <span>～</span>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-fit flex items-center gap-2"
-                  >
-                    {endDate
-                      ? format(endDate, "yyyy/MM/dd", { locale: ja })
-                      : "終了日"}
-                    <CalendarIcon className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* ライン選択 */}
-            <div className="w-40">
-              <Select value={selectedLineId} onValueChange={setSelectedLineId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="全てのライン" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全てのライン</SelectItem>
-                  {masterData.lines
-                    .filter((line) => line.active)
-                    .map((line) => (
-                      <SelectItem key={line.id} value={line.id}>
-                        {line.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <FilterPanel
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="ライン名で検索"
+            startDate={startDate}
+            endDate={endDate}
+            onDateChange={(type, date) => {
+              if (type === "start") {
+                setStartDate(date);
+              } else {
+                setEndDate(date);
+              }
+            }}
+            selectOptions={[
+              { value: "all", label: "全てのライン" },
+              ...masterData.lines
+                .filter((line) => line.active)
+                .map((line) => ({ value: line.id, label: line.name })),
+            ]}
+            selectedValue={selectedLineId}
+            onSelectChange={setSelectedLineId}
+            selectPlaceholder="全てのライン"
+          />
 
           {/* 列選択とCSVダウンロード */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

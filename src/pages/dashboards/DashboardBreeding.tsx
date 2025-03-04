@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { PAGE_TITLES } from "../../constants/routes";
 import { COLORS, STATUS, STATUS_DISPLAY, StatusType } from "../../constants/ui";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
@@ -8,6 +7,7 @@ import { useMasterData, useBreedingData } from "../../hooks/useDataStore";
 import { BreedingPlcData, ParameterDefinition } from "../../types/dataModels";
 import BreedingParameterTrendDialog from "../../components/charts/BreedingParameterTrendDialog";
 import { ParameterCard } from "../../components/features/ParameterCard";
+import { TabContainer } from "../../components/ui/tab-container";
 
 // 飼育槽パラメータの定義
 const BREEDING_PARAMETERS = [
@@ -157,26 +157,15 @@ const DashboardBreeding = () => {
   return (
     <PageContainer title={PAGE_TITLES.DASHBOARD_BREEDING}>
       {/* 水槽選択 */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 mb-8 p-2">
-        <Tabs value={selectedTank} className="w-full">
-          <div className="w-full overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            <TabsList className="flex justify-start space-x-2">
-              {breedingTanks.map((tank) => (
-                <TabsTrigger
-                  key={tank.id}
-                  value={tank.id}
-                  onClick={() => setSelectedTank(tank.id)}
-                  className="data-[state=active]:bg-blue-500 data-[state=active]:text-white 
-                             px-4 py-2 rounded-xl bg-slate-100 text-slate-600 
-                             hover:bg-slate-200 transition-all duration-200"
-                >
-                  {tank.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-        </Tabs>
-      </div>
+      <TabContainer
+        items={breedingTanks.map((tank) => ({
+          id: tank.id,
+          label: tank.name,
+        }))}
+        activeTab={selectedTank}
+        onTabChange={setSelectedTank}
+        className="mb-6"
+      />
 
       {currentTankData ? (
         <>
