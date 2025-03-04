@@ -8,23 +8,27 @@ import {
   Search,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { PageContainer } from "../components/PageContainer";
-import { Card, CardContent } from "../components/card";
-import { Button } from "../components/button";
-import { Badge } from "../components/badge";
-import { Input } from "../components/input";
-import { Checkbox } from "../components/checkbox";
-import { Switch } from "../components/switch";
-import { Label } from "../components/label";
+import { PageContainer } from "../layouts/PageContainer";
+import { Card, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Input } from "../components/ui/input";
+import { Checkbox } from "../components/ui/checkbox";
+import { Switch } from "../components/ui/switch";
+import { Label } from "../components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/select";
-import { Popover, PopoverContent, PopoverTrigger } from "../components/popover";
-import { Calendar } from "../components/calendar";
+} from "../components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
+import { Calendar } from "../components/ui/calendar";
 import { PAGE_TITLES } from "../constants/routes";
 import { COLORS } from "../constants/ui";
 import { useAlertData, useMasterData } from "../hooks/useDataStore";
@@ -34,7 +38,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../components/dialog";
+} from "../components/ui/dialog";
 import { AlertData } from "../types/dataModels";
 
 const AlertHistory = () => {

@@ -3,9 +3,14 @@ import { useState } from "react";
 import { COLORS } from "../constants/ui";
 import { PAGE_TITLES } from "../constants/routes";
 import { DASHBOARDS } from "../constants/menu";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/card";
-import { PageContainer } from "../components/PageContainer";
-import { Textarea } from "../components/textarea";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { PageContainer } from "../components/layouts/PageContainer";
+import { Textarea } from "../components/ui/textarea";
 import { CirclePlus, Check, Trash2 } from "lucide-react";
 import { useDashboardData } from "../hooks/useDataStore";
 

@@ -9,24 +9,24 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { Card, CardContent } from "../../components/card";
-import { Button } from "../../components/button";
-import { Input } from "../../components/input";
-import { Label } from "../../components/label";
-import { Checkbox } from "../../components/checkbox";
+import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Checkbox } from "../../components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/select";
+} from "../../components/ui/select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../components/popover";
-import { Calendar } from "../../components/calendar";
+} from "../../components/ui/popover";
+import { Calendar } from "../../components/ui/calendar";
 import {
   Table,
   TableBody,
@@ -34,7 +34,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../components/table";
+} from "../../components/ui/table";
 import { useMasterData, useEquipmentData } from "../../hooks/useDataStore";
 
 // 選択可能なテーブル列の定義

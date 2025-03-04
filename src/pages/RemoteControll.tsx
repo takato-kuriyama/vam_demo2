@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Card } from "../components/card";
-import { Tabs, TabsList, TabsTrigger } from "../components/tabs";
-import { Button } from "../components/button";
+import { Card } from "../components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Button } from "../components/ui/button";
 import { Settings } from "lucide-react";
 import {
   AlertDialog,
@@ -12,10 +12,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../components/alert-dialog";
-import { Input } from "../components/input";
-import { Label } from "../components/label";
-import { PageContainer } from "../components/PageContainer";
+} from "../components/ui/alert-dialog";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { PageContainer } from "../layouts/PageContainer";
 import { PAGE_TITLES } from "../constants/routes";
 import { TANKS } from "../constants/masterData/tanks";
 import {
@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../components/dialog";
+} from "../components/ui/dialog";
 
 // アクティブなタンクのみフィルタリング
 const EQ_TANKS = TANKS.filter((tank) => tank.type === "filter" && tank.active);

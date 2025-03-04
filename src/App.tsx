@@ -5,22 +5,22 @@ import { ROUTES_CONFIG } from "./constants/routes";
 
 // ページコンポーネント
 import HomePage from "./pages/HomePage";
-import Dashboard from "./pages/Dashboard";
-import DashboardEquipment from "./pages/DashboardEquipment";
-import DashboardBreeding from "./pages/DashboardBreeding";
-import BreedingManagement from "./pages/BreedingManagement";
+import Dashboard from "./pages/dashboards/Dashboard";
+import DashboardEquipment from "./pages/dashboards/DashboardEquipment";
+import DashboardBreeding from "./pages/dashboards/DashboardBreeding";
+import BreedingManagement from "./pages/entries/BreedingManagement";
 import AlertHistory from "./pages/AlertHistory";
-import FixedPointMonitoring from "./pages/FixedPointMonitoring";
-import UserMaster from "./pages/UserMaster";
-import AlertMaster from "./pages/AlertMaster";
-import TankMaster from "./pages/TankMaster";
-import LineMaster from "./pages/LineMaster";
-import DataListing from "./pages/DataListing";
-import LiveMonitoring from "./pages/LiveMonitoring";
+import FixedPointMonitoring from "./pages/monitoring/FixedPointMonitoring";
+import UserMaster from "./pages/masters/UserMaster";
+import AlertMaster from "./pages/masters/AlertMaster";
+import TankMaster from "./pages/masters/TankMaster";
+import LineMaster from "./pages/masters/LineMaster";
+import DataListing from "./pages/DataTables/DataListing";
+import LiveMonitoring from "./pages/monitoring/LiveMonitoring";
 import RemoteControll from "./pages/RemoteControll";
-import MasterIndex from "./pages/MasterIndex";
-import FishStocking from "./pages/FishStocking";
-import FishTransfer from "./pages/FishTransfer";
+import MasterIndex from "./pages/masters/MasterIndex";
+import FishStocking from "./pages/entries/FishStocking";
+import FishTransfer from "./pages/entries/FishTransfer";
 
 // コンポーネントの対応表（IDとコンポーネントのマッピング）
 const PAGE_COMPONENTS = {
