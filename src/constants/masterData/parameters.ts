@@ -134,19 +134,19 @@ export const PARAMETERS: ParameterDefinition[] = [
 // 餌種類の定義
 export const FEED_TYPES = [
   { id: "type0", name: "" },
-  { id: "type1", name: "EP1" },
-  { id: "type2", name: "EP2" },
-  { id: "type3", name: "EP3" },
+  { id: "type1", name: "おとひめ8" },
+  { id: "type2", name: "おとひめ10" },
+  { id: "type3", name: "桜モジャコ3" },
 ];
 
-// 摂餌活性
-export const FEEDING_ACTIVITY = [
-  { value: 1, label: "1: 良くない" },
-  { value: 2, label: "2: あまり良くない" },
-  { value: 3, label: "3: 普通" },
-  { value: 4, label: "4: 良い" },
-  { value: 5, label: "5: とても良い" },
-] as const;
+// // 摂餌活性
+// export const FEEDING_ACTIVITY = [
+//   { value: 1, label: "1: 良くない" },
+//   { value: 2, label: "2: あまり良くない" },
+//   { value: 3, label: "3: 普通" },
+//   { value: 4, label: "4: 良い" },
+//   { value: 5, label: "5: とても良い" },
+// ] as const;
 
 // ヘルパー関数
 export const getParameterById = (id: string) =>
@@ -176,12 +176,12 @@ export const getFeedTypeName = (id: string): string => {
 export type FeedType = (typeof FEED_TYPES)[number];
 export type FeedTypeId = FeedType["id"];
 
-export type FeedingActivity = (typeof FEEDING_ACTIVITY)[number];
-export type FeedingActivityValue = FeedingActivity["value"];
+// export type FeedingActivity = (typeof FEEDING_ACTIVITY)[number];
+// export type FeedingActivityValue = FeedingActivity["value"];
 
-export const getFeedingActivityLabel = (value: string): string => {
-  const activity = FEEDING_ACTIVITY.find(
-    (a) => String(a.value) === String(value)
-  );
-  return activity ? activity.label : "-";
-};
+// export const getFeedingActivityLabel = (value: string): string => {
+//   const activity = FEEDING_ACTIVITY.find(
+//     (a) => String(a.value) === String(value)
+//   );
+//   return activity ? activity.label : "-";
+// };

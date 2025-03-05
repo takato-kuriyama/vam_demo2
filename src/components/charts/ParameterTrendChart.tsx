@@ -333,7 +333,7 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
                   }}
                   domain={[
                     // 最小値は警告下限値・危険下限値・データ最小値のうち最も小さい値よりさらに10%小さく
-                    (dataMin) => {
+                    (dataMin: number) => {
                       const minThreshold = Math.min(
                         parameter.warningMin,
                         parameter.dangerMin
@@ -342,7 +342,7 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
                       return Math.floor(lowerBound - lowerBound * 0.1);
                     },
                     // 最大値は警告上限値・危険上限値・データ最大値のうち最も大きい値よりさらに10%大きく
-                    (dataMax) => {
+                    (dataMax: number) => {
                       const maxThreshold = Math.max(
                         parameter.warningMax,
                         parameter.dangerMax
@@ -397,39 +397,21 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
                   stroke="#2196F3"
                   strokeWidth={2}
                   connectNulls={false}
-                  dot={(props) => {
-                    // データ欠損ポイントには何も表示しない
-                    if (props.payload.value === null) return null;
-
-                    // 期間によってドット表示を切り替え
-                    if (timeRange === "24h") {
-                      return (
-                        <circle
-                          cx={props.cx}
-                          cy={props.cy}
-                          r={3}
-                          fill="#2196F3"
-                          stroke="#2196F3"
-                        />
-                      );
-                    }
-                    // 1ヶ月以上の期間ではドットを非表示
-                    return null;
+                  // または特定のスタイルを指定する場合
+                  dot={{
+                    r: 3,
+                    fill: "#2196F3",
+                    stroke: "#2196F3",
+                    // タイムレンジが24時間の場合のみ表示
+                    strokeWidth: timeRange === "24h" ? 1 : 0,
+                    fillOpacity: timeRange === "24h" ? 1 : 0,
                   }}
-                  activeDot={(props: any) => {
-                    // データ欠損マーカーの場合は何も表示しない
-                    if (props.payload.value === null) return null;
-
-                    return (
-                      <circle
-                        cx={props.cx}
-                        cy={props.cy}
-                        r={5}
-                        fill="#2196F3"
-                        stroke="white"
-                        strokeWidth={2}
-                      />
-                    );
+                  // アクティブドットは常に表示
+                  activeDot={{
+                    r: 5,
+                    fill: "#2196F3",
+                    stroke: "white",
+                    strokeWidth: 2,
                   }}
                 />
 

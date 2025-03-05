@@ -3,7 +3,7 @@
 // 給餌情報の型
 export interface FeedEntry {
   id: string;
-  time: Date;
+  time: string | Date; // 文字列(HH:MM形式)またはDateオブジェクト
   feed1Type: string;
   feed1Amount: string;
   feed2Type: string;

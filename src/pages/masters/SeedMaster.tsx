@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "../../components/ui/card";
 import {
   Tabs,
   TabsList,
@@ -10,7 +9,6 @@ import { Button } from "../../components/ui/button";
 import { Search, PlusCircle } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { PageContainer } from "../../components/layouts/PageContainer";
-import { COLORS } from "../../constants/ui";
 import { useMasterData } from "../../hooks/useDataStore";
 import { DataCard } from "../../components/ui/data-card";
 import { SupplierMasterDialog } from "../../components/dialogs/SupplierMasterDialog";
@@ -31,7 +29,7 @@ const SeedMaster = () => {
   const [selectedSpecies, setSelectedSpecies] = useState<any>(null);
 
   // マスターデータフックを使用
-  const { masterData, isLoading, error } = useMasterData();
+  const { isLoading, error } = useMasterData();
 
   // 仮のサプライヤーデータ（実際のアプリではAPIから取得）
   const suppliers = [

@@ -361,10 +361,10 @@ interface CalculationSettingsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   settings: {
-    slope: number;
-    intercept: number;
+    coefficient: number;
+    adjustment: number;
   };
-  onSave: (settings: { slope: number; intercept: number }) => void;
+  onSave: (settings: { coefficient: number; adjustment: number }) => void;
 }
 
 const CalculationSettingsDialog: React.FC<CalculationSettingsDialogProps> = ({
