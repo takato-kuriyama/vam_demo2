@@ -24,7 +24,8 @@ export function DataCard({
       className={`transition-all duration-300 hover:shadow-lg hover:scale-102 
       ${COLORS.border.primary} rounded-xl ${
         highlight ? "bg-blue-50" : ""
-      } ${className}`}
+      } ${className} ${onAction ? "cursor-pointer" : ""}`}
+      onClick={onAction}
     >
       <CardContent className="p-4">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
@@ -32,7 +33,10 @@ export function DataCard({
           {onAction && (
             <Button
               variant="ghost"
-              onClick={onAction}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAction();
+              }}
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 self-end sm:self-auto"
             >
               {actionLabel}

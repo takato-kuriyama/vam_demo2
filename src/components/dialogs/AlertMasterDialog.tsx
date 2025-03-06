@@ -2,7 +2,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
+import { X, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AlertMaster } from "../../types/dataModels";
+import { ALERT_TARGET_DATA } from "../../constants/masterData/alerts";
 import {
   Select,
   SelectContent,
@@ -10,13 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { X } from "lucide-react";
-import { useState } from "react";
-import { AlertMaster } from "../../types/dataModels";
-import {
-  ALERT_TARGET_DATA,
-  ALERT_DUPLICATE_CONTROLS,
-} from "../../constants/masterData/alerts";
+import { useMasterData } from "../../hooks/useDataStore";
+import { Checkbox } from "../ui/checkbox";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface AlertMasterDialogProps {
   isOpen: boolean;
@@ -31,22 +30,59 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
   isEdit = false,
   alertData,
 }) => {
+  const { masterData } = useMasterData();
   const [formData, setFormData] = useState({
-    name: alertData?.name || "",
     targetParam: alertData?.targetParam || ALERT_TARGET_DATA[0]?.id || "",
     thresholdMin: alertData?.thresholdMin || 0.5,
     thresholdMax: alertData?.thresholdMax || 3.0,
     dangerMin: alertData?.dangerMin || 0.5,
     dangerMax: alertData?.dangerMax || 3.0,
-    duplicateControl:
-      alertData?.duplicateControl || ALERT_DUPLICATE_CONTROLS[0]?.id || "",
-    solution: alertData?.solution || "",
   });
+
+  // 水槽選択の状態
+  const [selectedTanks, setSelectedTanks] = useState<Record<string, boolean>>(
+    {}
+  );
+
+  // 初期化時に水槽設定をセットアップ
+  useEffect(() => {
+    if (isOpen) {
+      const initialTankSettings: Record<string, boolean> = {};
+      masterData.tanks
+        .filter((tank) => tank.type === "breeding" && tank.active)
+        .forEach((tank) => {
+          initialTankSettings[tank.id] = false;
+        });
+      setSelectedTanks(initialTankSettings);
+    }
+  }, [isOpen, masterData.tanks]);
+
+  // 選択したパラメータに基づいてアラート名を自動生成
+  const getAlertName = () => {
+    const param = ALERT_TARGET_DATA.find((p) => p.id === formData.targetParam);
+    return param ? `${param.name}アラート` : "";
+  };
+
+  // すべての水槽を選択/解除
+  const handleSelectAllTanks = (checked: boolean) => {
+    const newSettings = { ...selectedTanks };
+    Object.keys(newSettings).forEach((tankId) => {
+      newSettings[tankId] = checked;
+    });
+    setSelectedTanks(newSettings);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // 未実装
-    console.log(formData);
+
+    // アラート名は選択したパラメータから自動生成
+    const alertName = getAlertName();
+
+    console.log({
+      name: alertName,
+      ...formData,
+      selectedTanks,
+    });
     onClose();
   };
 
@@ -67,18 +103,6 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">アラート名：</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              placeholder="アラート名を入力"
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label>対象データ：</Label>
             <Select
               value={formData.targetParam}
@@ -97,10 +121,13 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-sm text-gray-500">
+              アラート名: {getAlertName()}
+            </p>
           </div>
 
           <div className="space-y-2">
-            <Label>閾値設定：</Label>
+            <Label>閾値設定（警告値）：</Label>
             <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <Input
                 type="number"
@@ -163,38 +190,48 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>重複アラート抑制：</Label>
-            <Select
-              value={formData.duplicateControl}
-              onValueChange={(value) =>
-                setFormData({ ...formData, duplicateControl: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="重複アラート抑制を選択" />
-              </SelectTrigger>
-              <SelectContent>
-                {ALERT_DUPLICATE_CONTROLS.map((control) => (
-                  <SelectItem key={control.id} value={control.id}>
-                    {control.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* 水槽選択セクション */}
+          <div className="space-y-2 pt-4 border-t">
+            <div className="flex justify-between items-center mb-2">
+              <Label>設定を適用する水槽：</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="selectAllTanks"
+                  onCheckedChange={(checked) => handleSelectAllTanks(!!checked)}
+                  checked={Object.values(selectedTanks).every((v) => v)}
+                />
+                <Label htmlFor="selectAllTanks" className="text-sm">
+                  すべて選択
+                </Label>
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="solution">対応方法：</Label>
-            <Textarea
-              id="solution"
-              value={formData.solution}
-              onChange={(e) =>
-                setFormData({ ...formData, solution: e.target.value })
-              }
-              placeholder="アラート通知で表示する文章を入力できます"
-              rows={4}
-            />
+            <ScrollArea className="h-40 pr-4 border rounded-md p-2">
+              <div className="space-y-1 p-1">
+                {masterData.tanks
+                  .filter((tank) => tank.type === "breeding" && tank.active)
+                  .map((tank) => (
+                    <div
+                      key={tank.id}
+                      className="flex items-center space-x-2 py-1"
+                    >
+                      <Checkbox
+                        id={`tank-${tank.id}`}
+                        checked={selectedTanks[tank.id] || false}
+                        onCheckedChange={(checked) => {
+                          setSelectedTanks((prev) => ({
+                            ...prev,
+                            [tank.id]: !!checked,
+                          }));
+                        }}
+                      />
+                      <Label htmlFor={`tank-${tank.id}`} className="text-sm">
+                        {tank.name}
+                      </Label>
+                    </div>
+                  ))}
+              </div>
+            </ScrollArea>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">

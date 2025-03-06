@@ -22,6 +22,7 @@ import MasterIndex from "./pages/masters/MasterIndex";
 import FishStocking from "./pages/entries/FishStocking";
 import FishTransfer from "./pages/entries/FishTransfer";
 import SeedMaster from "./pages/masters/SeedMaster";
+import FeedMaster from "./pages/masters/FeedMaster";
 
 // コンポーネントの対応表（IDとコンポーネントのマッピング）
 const PAGE_COMPONENTS = {
@@ -43,6 +44,7 @@ const PAGE_COMPONENTS = {
   FISH_STOCKING: FishStocking,
   FISH_TRANSFER: FishTransfer,
   SEED_MASTER: SeedMaster,
+  FEED_MASTER: FeedMaster,
 };
 
 function App() {

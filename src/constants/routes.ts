@@ -19,6 +19,7 @@ export const ROUTES = {
   LINE_MASTER: "/line_master",
   REMOTE_CONTROLL: "/remote_controll",
   SEED_MASTER: "/seed_master",
+  FEED_MASTER: "/feed_master",
 } as const;
 
 export type RouteKeys = keyof typeof ROUTES;
@@ -116,6 +117,11 @@ export const ROUTES_CONFIG = [
     path: "/seed_master",
     displayName: "種苗マスタ",
   },
+  {
+    id: "FEED_MASTER",
+    path: "/feed_master",
+    displayName: "投入物マスタ",
+  },
 ] as const;
 
 // ページタイトル定義も移行
@@ -135,6 +141,7 @@ export const PAGE_TITLES = {
   TANK_MASTER: "飼育槽マスタ",
   LINE_MASTER: "ろ過部マスタ",
   SEED_MASTER: "種苗マスタ",
+  FEED_MASTER: "投入物マスタ",
   FIXED_POINT: "定点観測一覧",
   LIVE_MONITORING: "LIVE映像",
   REMOTE_CONTROLL: "制御パネル",

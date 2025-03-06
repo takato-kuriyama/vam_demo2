@@ -59,7 +59,7 @@ const HomePage = () => {
   return (
     <PageContainer title={PAGE_TITLES.HOME}>
       <div className="space-y-6">
-        {/* 本日の情報とアラート */}
+        {/* 本日の情報とメモ */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="pb-2">
@@ -140,8 +140,31 @@ const HomePage = () => {
           </Card>
         </div>
 
-        {/* ダッシュボードと定点観測 */}
+        {/* 電流値とダッシュボード */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">現在の電流値</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col sm:flex-row sm:space-x-8 space-y-3 sm:space-y-0">
+                {Object.entries(dashboardData.todayFeedingTotal).map(
+                  ([lineId, total]) => (
+                    <div
+                      key={lineId}
+                      className="bg-blue-50 rounded-lg px-4 py-3 text-center sm:text-left flex-1"
+                    >
+                      <span className="font-semibold text-blue-700">
+                        {lineId}ライン
+                      </span>
+                      <p className="text-xl font-bold text-blue-800">12.1A</p>
+                    </div>
+                  )
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">ダッシュボード</CardTitle>
@@ -159,21 +182,6 @@ const HomePage = () => {
                     </p>
                   </Link>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">定点観測通知</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center h-full min-h-[120px]">
-                <p className="text-center text-gray-500">
-                  定点観測の通知が簡易的に
-                  <br />
-                  ここに表示されます
-                </p>
               </div>
             </CardContent>
           </Card>
