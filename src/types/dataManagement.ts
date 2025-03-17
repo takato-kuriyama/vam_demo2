@@ -15,7 +15,7 @@ export interface MortalityRecord {
   id: string;
   weight: string; // 魚体重
   symptoms: string; // 症状
-  photo: File | null; // 写真
+  photos: (File | null)[]; // 写真(複数枚)←3枚までを想定
   notes: string; // 備考
 }
 

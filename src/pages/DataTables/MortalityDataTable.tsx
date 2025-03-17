@@ -42,12 +42,12 @@ import { exportTableDataToCsv } from "../../lib/export-utils";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
-  { id: "date", label: "日付", required: true },
-  { id: "tankName", label: "水槽名", required: true },
-  { id: "seedName", label: "種苗名" },
-  { id: "weight", label: "魚体重" },
-  { id: "symptom", label: "症状" },
-  { id: "notes", label: "備考" },
+  { id: "date", label: "日付", required: true, unit: "" },
+  { id: "tankName", label: "水槽名", required: true, unit: "" },
+  { id: "seedName", label: "種苗名", unit: "" },
+  { id: "weight", label: "魚体重", unit: "g" },
+  { id: "symptom", label: "症状", unit: "" },
+  { id: "notes", label: "備考", unit: "" },
 ];
 
 const MortalityDataTable = () => {
@@ -266,7 +266,7 @@ const MortalityDataTable = () => {
           {/* テーブル */}
           <div className="overflow-x-auto border rounded-lg">
             <Table className="min-w-full">
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
                 <TableRow>
                   {AVAILABLE_COLUMNS.filter((col) =>
                     selectedColumns.includes(col.id)
@@ -276,6 +276,7 @@ const MortalityDataTable = () => {
                       className="bg-gray-50 whitespace-nowrap"
                     >
                       {column.label}
+                      {column.unit ? ` (${column.unit})` : ""}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -299,7 +300,7 @@ const MortalityDataTable = () => {
                       )}
 
                       {selectedColumns.includes("weight") && (
-                        <TableCell>{row.weight}g</TableCell>
+                        <TableCell>{row.weight}</TableCell>
                       )}
 
                       {selectedColumns.includes("symptom") && (

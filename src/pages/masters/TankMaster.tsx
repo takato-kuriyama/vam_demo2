@@ -116,7 +116,13 @@ const TankMasterPage = () => {
                       COLORS.border.primary
                     } rounded-xl ${!tank.active ? "bg-gray-50" : ""}`}
                   >
-                    <CardContent className="p-4">
+                    <CardContent
+                      onClick={() => {
+                        setSelectedTank(tank);
+                        setIsEditDialogOpen(true);
+                      }}
+                      className="p-4"
+                    >
                       <div className="flex justify-between items-start">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">

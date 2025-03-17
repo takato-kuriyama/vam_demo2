@@ -39,7 +39,7 @@ export function exportToCsv(
 
 // データテーブル用のCSVエクスポート関数
 export function exportTableDataToCsv(
-  columns: { id: string; label: string }[],
+  columns: { id: string; label: string; unit?: string }[],
   data: any[],
   selectedColumns: string[],
   filename: string
@@ -47,7 +47,7 @@ export function exportTableDataToCsv(
   // 選択された列のヘッダー
   const headers = columns
     .filter((col) => selectedColumns.includes(col.id))
-    .map((col) => col.label);
+    .map((col) => (col.unit ? `${col.label} (${col.unit})` : col.label));
 
   // データ行の作成
   const rows = data.map((row) => {

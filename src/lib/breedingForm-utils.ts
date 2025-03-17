@@ -92,7 +92,7 @@ export function createEmptyMortalityRecord(): MortalityRecord {
     id: "",
     weight: "",
     symptoms: "",
-    photo: null,
+    photos: [],
     notes: "",
   };
 }

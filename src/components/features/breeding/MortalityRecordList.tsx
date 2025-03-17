@@ -77,13 +77,23 @@ const MortalityRecordList: React.FC<MortalityRecordListProps> = ({
                       <span className="font-medium">備考:</span> {record.notes}
                     </div>
                   )}
-                  {record.photo && (
-                    <div className="mt-2 relative w-20 h-20 bg-gray-100 rounded overflow-hidden">
-                      <img
-                        src={URL.createObjectURL(record.photo)}
-                        alt="斃死魚写真"
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
+                  {record.photos && record.photos.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {record.photos.map(
+                        (photo, index) =>
+                          photo && (
+                            <div
+                              key={index}
+                              className="relative w-20 h-20 bg-gray-100 rounded overflow-hidden"
+                            >
+                              <img
+                                src={URL.createObjectURL(photo)}
+                                alt={`斃死魚写真 ${index + 1}`}
+                                className="absolute inset-0 w-full h-full object-cover"
+                              />
+                            </div>
+                          )
+                      )}
                     </div>
                   )}
                 </div>

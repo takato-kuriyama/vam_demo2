@@ -41,18 +41,18 @@ import { exportTableDataToCsv } from "../../lib/export-utils";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
-  { id: "date", label: "日付", required: true },
-  { id: "lineName", label: "ライン名", required: true },
-  { id: "residualChlorine1", label: "残留塩素計値①" },
-  { id: "residualChlorine2", label: "残留塩素計値②" },
-  { id: "ammonia", label: "アンモニア濃度" },
-  { id: "temperature", label: "水温" },
-  { id: "current", label: "電解電流値" },
-  { id: "polarity", label: "電解極性" },
-  { id: "ph", label: "pH" },
-  { id: "do", label: "DO" },
-  { id: "flowRate", label: "ろ過流量" },
-  { id: "voltage", label: "電圧量" },
+  { id: "date", label: "日付", required: true, unit: "" },
+  { id: "lineName", label: "ライン名", required: true, unit: "" },
+  { id: "residualChlorine1", label: "残留塩素計値①", unit: "mg/L" },
+  { id: "residualChlorine2", label: "残留塩素計値②", unit: "mg/L" },
+  { id: "ammonia", label: "アンモニア濃度", unit: "ppm" },
+  { id: "temperature", label: "水温", unit: "℃" },
+  { id: "current", label: "電解電流値", unit: "A" },
+  { id: "polarity", label: "電解極性", unit: "" },
+  { id: "ph", label: "pH", unit: "" },
+  { id: "do", label: "DO", unit: "ppm" },
+  { id: "flowRate", label: "ろ過流量", unit: "L/min" },
+  { id: "voltage", label: "電圧量", unit: "V" },
 ];
 
 const EquipmentDataTable = () => {
@@ -280,7 +280,7 @@ const EquipmentDataTable = () => {
           {/* テーブル */}
           <div className="overflow-x-auto border rounded-lg">
             <Table className="min-w-full">
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
                 <TableRow>
                   {AVAILABLE_COLUMNS.filter((col) =>
                     selectedColumns.includes(col.id)
@@ -290,6 +290,7 @@ const EquipmentDataTable = () => {
                       className="bg-gray-50 whitespace-nowrap"
                     >
                       {column.label}
+                      {column.unit ? ` (${column.unit})` : ""}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -310,26 +311,26 @@ const EquipmentDataTable = () => {
 
                       {selectedColumns.includes("residualChlorine1") && (
                         <TableCell>
-                          {row.residualChlorine1.toFixed(1)}mg/L
+                          {row.residualChlorine1.toFixed(1)}
                         </TableCell>
                       )}
 
                       {selectedColumns.includes("residualChlorine2") && (
                         <TableCell>
-                          {row.residualChlorine2.toFixed(1)}mg/L
+                          {row.residualChlorine2.toFixed(1)}
                         </TableCell>
                       )}
 
                       {selectedColumns.includes("ammonia") && (
-                        <TableCell>{row.ammonia.toFixed(2)}ppm</TableCell>
+                        <TableCell>{row.ammonia.toFixed(2)}</TableCell>
                       )}
 
                       {selectedColumns.includes("temperature") && (
-                        <TableCell>{row.temperature.toFixed(1)}℃</TableCell>
+                        <TableCell>{row.temperature.toFixed(1)}</TableCell>
                       )}
 
                       {selectedColumns.includes("current") && (
-                        <TableCell>{row.current.toFixed(1)}A</TableCell>
+                        <TableCell>{row.current.toFixed(1)}</TableCell>
                       )}
 
                       {selectedColumns.includes("polarity") && (
@@ -341,15 +342,15 @@ const EquipmentDataTable = () => {
                       )}
 
                       {selectedColumns.includes("do") && (
-                        <TableCell>{row.do}ppm</TableCell>
+                        <TableCell>{row.do}</TableCell>
                       )}
 
                       {selectedColumns.includes("flowRate") && (
-                        <TableCell>{row.flowRate.toFixed(1)}L/min</TableCell>
+                        <TableCell>{row.flowRate.toFixed(1)}</TableCell>
                       )}
 
                       {selectedColumns.includes("voltage") && (
-                        <TableCell>{row.voltage}V</TableCell>
+                        <TableCell>{row.voltage}</TableCell>
                       )}
                     </TableRow>
                   ))

@@ -29,26 +29,75 @@ const MortalityRecordDialog: React.FC<MortalityRecordDialogProps> = ({
 }) => {
   const [mortalityData, setMortalityData] =
     useState<MortalityRecord>(initialData);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoPreviews, setPhotoPreviews] = useState<(string | null)[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // コンポーネントの初期化時に写真のプレビューを設定
+  React.useEffect(() => {
+    // initialDataからphotosが存在する場合、プレビューを生成
+    if (initialData.photos) {
+      const previews = initialData.photos.map((photo) =>
+        photo ? URL.createObjectURL(photo) : null
+      );
+      setPhotoPreviews(previews);
+    } else {
+      setPhotoPreviews([]);
+    }
+
+    // モーダルが開かれるたびに初期データをセット
+    setMortalityData(initialData);
+  }, [initialData, isOpen]);
+
+  // キーボードショートカットの処理
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Ctrl+Enter が押されたら保存処理を実行
+    if (e.ctrlKey && e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
 
   // 写真の選択
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // 写真データをセット
+      // 写真の最大数をチェック
+      if (mortalityData.photos.filter((p) => p !== null).length >= 3) {
+        alert("写真は最大3枚までです");
+        return;
+      }
+
+      // 写真データを追加
+      const newPhotos = [...mortalityData.photos];
+      newPhotos.push(file);
       setMortalityData((prev) => ({
         ...prev,
-        photo: file,
+        photos: newPhotos,
       }));
 
-      // プレビュー表示
+      // プレビュー表示を追加
       const reader = new FileReader();
       reader.onload = () => {
-        setPhotoPreview(reader.result as string);
+        setPhotoPreviews((prev) => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // 写真の削除
+  const removePhoto = (index: number) => {
+    // 写真データを削除
+    const newPhotos = [...mortalityData.photos];
+    newPhotos.splice(index, 1);
+    setMortalityData((prev) => ({
+      ...prev,
+      photos: newPhotos,
+    }));
+
+    // プレビュー表示を削除
+    const newPreviews = [...photoPreviews];
+    newPreviews.splice(index, 1);
+    setPhotoPreviews(newPreviews);
   };
 
   // 写真のキャプチャボタンをクリック
@@ -77,7 +126,14 @@ const MortalityRecordDialog: React.FC<MortalityRecordDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <form
+          onKeyDown={handleKeyDown}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          className="space-y-4 py-4"
+        >
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label htmlFor="mortality-weight">魚体重 (g)</Label>
@@ -131,51 +187,61 @@ const MortalityRecordDialog: React.FC<MortalityRecordDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>写真</Label>
-              <div className="flex items-center gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={triggerPhotoCapture}
-                  className="flex items-center gap-2"
-                >
-                  <Camera className="h-4 w-4" />
-                  写真を撮影/選択
-                </Button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={handlePhotoSelect}
-                  className="hidden"
-                />
-                {photoPreview && (
-                  <div className="relative w-20 h-20 bg-gray-100 rounded overflow-hidden">
-                    <img
-                      src={photoPreview}
-                      alt="プレビュー"
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhotoPreview(null);
-                        setMortalityData((prev) => ({
-                          ...prev,
-                          photo: null,
-                        }));
-                      }}
-                      className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm"
-                      title="削除"
+              <Label>写真 (最大3枚)</Label>
+              <div className="space-y-3">
+                {/* 写真のプレビュー表示エリア */}
+                <div className="flex flex-wrap gap-2">
+                  {photoPreviews.map((preview, index) => (
+                    <div
+                      key={index}
+                      className="relative w-20 h-20 bg-gray-100 rounded overflow-hidden"
                     >
-                      <X className="h-3 w-3" />
-                    </button>
+                      {preview && (
+                        <>
+                          <img
+                            src={preview}
+                            alt={`プレビュー ${index + 1}`}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(index)}
+                            className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm"
+                            title="削除"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* 写真追加ボタン - 3枚未満の場合のみ表示 */}
+                {photoPreviews.length < 3 && (
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={triggerPhotoCapture}
+                      className="flex items-center gap-2"
+                    >
+                      <Camera className="h-4 w-4" />
+                      写真を追加 ({photoPreviews.length}/3)
+                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      onChange={handlePhotoSelect}
+                      className="hidden"
+                    />
                   </div>
                 )}
               </div>
             </div>
           </div>
-        </div>
+        </form>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

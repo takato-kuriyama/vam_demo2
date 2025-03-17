@@ -6,8 +6,6 @@ import {
   Search,
   Download,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -45,14 +43,14 @@ import { exportTableDataToCsv } from "../../lib/export-utils";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
-  { id: "date", label: "日付", required: true },
-  { id: "tankName", label: "水槽名", required: true },
-  { id: "seedName", label: "種苗名" },
-  { id: "fishCount", label: "尾数" },
-  { id: "waterTemp", label: "水温" },
-  { id: "ph", label: "pH" },
-  { id: "ammonia", label: "アンモニア" },
-  { id: "feedAmount", label: "給餌量(合計)" },
+  { id: "date", label: "日付", required: true, unit: "" },
+  { id: "tankName", label: "水槽名", required: true, unit: "" },
+  { id: "seedName", label: "種苗名", unit: "" },
+  { id: "fishCount", label: "尾数", unit: "匹" },
+  { id: "waterTemp", label: "水温", unit: "℃" },
+  { id: "ph", label: "pH", unit: "" },
+  { id: "ammonia", label: "アンモニア", unit: "ppm" },
+  { id: "feedAmount", label: "給餌量(合計)", unit: "g" },
 ];
 
 const BreedingDataTable = () => {
@@ -375,9 +373,9 @@ const BreedingDataTable = () => {
           </div>
 
           {/* テーブル */}
-          <div className="overflow-x-auto border rounded-lg">
+          <div className="overflow-y-auto max-h-[70vh] overflow-x-auto border rounded-lg">
             <Table className="min-w-full">
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
                 <TableRow>
                   {AVAILABLE_COLUMNS.filter((col) =>
                     selectedColumns.includes(col.id)
@@ -387,6 +385,7 @@ const BreedingDataTable = () => {
                       className="bg-gray-50 whitespace-nowrap"
                     >
                       {column.label}
+                      {column.unit ? ` (${column.unit})` : ""}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -414,7 +413,7 @@ const BreedingDataTable = () => {
                       )}
 
                       {selectedColumns.includes("waterTemp") && (
-                        <TableCell>{row.waterTemp}℃</TableCell>
+                        <TableCell>{row.waterTemp}</TableCell>
                       )}
 
                       {selectedColumns.includes("ph") && (
@@ -422,11 +421,11 @@ const BreedingDataTable = () => {
                       )}
 
                       {selectedColumns.includes("ammonia") && (
-                        <TableCell>{row.ammonia}ppm</TableCell>
+                        <TableCell>{row.ammonia}</TableCell>
                       )}
 
                       {selectedColumns.includes("feedAmount") && (
-                        <TableCell>{row.feedAmount}g</TableCell>
+                        <TableCell>{row.feedAmount}</TableCell>
                       )}
                     </TableRow>
                   ))

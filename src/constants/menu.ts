@@ -177,7 +177,7 @@ export const DASHBOARDS: Dashboard[] = [
   {
     id: "03",
     name: "TESTダッシュボード",
-    path: ROUTES.DASHBOARD_EQUIPMENT,
+    path: ROUTES.DASHBOARD_TEST,
   },
   {
     id: "04",

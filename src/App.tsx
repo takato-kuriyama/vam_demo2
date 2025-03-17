@@ -23,6 +23,7 @@ import FishStocking from "./pages/entries/FishStocking";
 import FishTransfer from "./pages/entries/FishTransfer";
 import SeedMaster from "./pages/masters/SeedMaster";
 import FeedMaster from "./pages/masters/FeedMaster";
+import DashboardTest from "./pages/dashboards/DashboardTest";
 
 // コンポーネントの対応表（IDとコンポーネントのマッピング）
 const PAGE_COMPONENTS = {
@@ -45,6 +46,7 @@ const PAGE_COMPONENTS = {
   FISH_TRANSFER: FishTransfer,
   SEED_MASTER: SeedMaster,
   FEED_MASTER: FeedMaster,
+  DASHBOARD_TEST: DashboardTest,
 };
 
 function App() {

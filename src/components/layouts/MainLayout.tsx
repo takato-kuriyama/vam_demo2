@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent } from "../ui/sheet";
-import { AlertTriangle, Menu, ArrowRight, Fish } from "lucide-react";
+import { AlertTriangle, Menu } from "lucide-react";
 import { ROUTES } from "../../constants/routes";
 import { COLORS } from "../../constants/ui";
 import { HEADER_MENU_ITEMS, SIDE_MENU_ITEMS } from "../../constants/menu";
@@ -107,7 +107,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </div>
 
         {/* アラート通知バー */}
-        {latestAlert && (
+        {/* {latestAlert && (
           <div className="flex justify-center items-center mb-3">
             <div
               className={`w-4/5 ${COLORS.bg.error3} text-lg rounded-xl border ${COLORS.border.primary}`}
@@ -130,7 +130,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </Link>
             </div>
           </div>
-        )}
+        )} */}
       </header>
       <main className="p-4 max-w-7xl mx-auto">{children}</main>
     </div>

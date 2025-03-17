@@ -20,6 +20,7 @@ export const ROUTES = {
   REMOTE_CONTROLL: "/remote_controll",
   SEED_MASTER: "/seed_master",
   FEED_MASTER: "/feed_master",
+  DASHBOARD_TEST: "/dashboard_test",
 } as const;
 
 export type RouteKeys = keyof typeof ROUTES;
@@ -122,6 +123,11 @@ export const ROUTES_CONFIG = [
     path: "/feed_master",
     displayName: "投入物マスタ",
   },
+  {
+    id: "DASHBOARD_TEST",
+    path: "/dashboard_test",
+    displayName: "テストダッシュボード",
+  },
 ] as const;
 
 // ページタイトル定義も移行
@@ -145,4 +151,5 @@ export const PAGE_TITLES = {
   FIXED_POINT: "定点観測一覧",
   LIVE_MONITORING: "LIVE映像",
   REMOTE_CONTROLL: "制御パネル",
+  DASHBOARD_TEST: "テストダッシュボード",
 } as const;
