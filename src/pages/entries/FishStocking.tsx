@@ -267,7 +267,7 @@ const FishStocking: React.FC = () => {
 
       {/* 池入れ記録追加ダイアログ */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md bg-white">
+        <DialogContent className="max-w-md bg-white max-h-[70vh] overflow-y-auto w-[95vw] md:w-full">
           <DialogHeader>
             <DialogTitle>新規池入れ記録</DialogTitle>
             <DialogDescription>
@@ -275,7 +275,7 @@ const FishStocking: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 overflow-y-auto">
             {/* 日付選択 */}
             <FormField id="date" label="日付" required>
               <DatePicker
@@ -366,6 +366,7 @@ const FishStocking: React.FC = () => {
               label="尾数"
               name="quantity"
               type="number"
+              inputMode="numeric"
               value={formData.quantity || ""}
               onChange={handleInputChange}
               min={1}

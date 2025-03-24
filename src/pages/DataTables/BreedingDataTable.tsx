@@ -373,74 +373,83 @@ const BreedingDataTable = () => {
           </div>
 
           {/* テーブル */}
-          <div className="overflow-y-auto max-h-[70vh] overflow-x-auto border rounded-lg">
-            <Table className="min-w-full">
-              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
-                <TableRow>
-                  {AVAILABLE_COLUMNS.filter((col) =>
-                    selectedColumns.includes(col.id)
-                  ).map((column) => (
-                    <TableHead
-                      key={column.id}
-                      className="bg-gray-50 whitespace-nowrap"
-                    >
-                      {column.label}
-                      {column.unit ? ` (${column.unit})` : ""}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedData.length > 0 ? (
-                  paginatedData.map((row, index) => (
-                    <TableRow key={index} className="hover:bg-gray-50">
-                      {selectedColumns.includes("date") && (
-                        <TableCell className="whitespace-nowrap">
-                          {format(row.date, "yyyy/MM/dd", { locale: ja })}
-                        </TableCell>
-                      )}
-
-                      {selectedColumns.includes("tankName") && (
-                        <TableCell>{row.tankName}</TableCell>
-                      )}
-
-                      {selectedColumns.includes("seedName") && (
-                        <TableCell>{row.seedName}</TableCell>
-                      )}
-
-                      {selectedColumns.includes("fishCount") && (
-                        <TableCell>{row.fishCount}</TableCell>
-                      )}
-
-                      {selectedColumns.includes("waterTemp") && (
-                        <TableCell>{row.waterTemp}</TableCell>
-                      )}
-
-                      {selectedColumns.includes("ph") && (
-                        <TableCell>{row.ph}</TableCell>
-                      )}
-
-                      {selectedColumns.includes("ammonia") && (
-                        <TableCell>{row.ammonia}</TableCell>
-                      )}
-
-                      {selectedColumns.includes("feedAmount") && (
-                        <TableCell>{row.feedAmount}</TableCell>
-                      )}
-                    </TableRow>
-                  ))
-                ) : (
+          <div
+            className="border rounded-lg"
+            style={{
+              height: "70vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div className="overflow-y-auto max-h-[70vh] overflow-x-auto border rounded-lg">
+              <Table className="min-w-full">
+                <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
                   <TableRow>
-                    <TableCell
-                      colSpan={selectedColumns.length}
-                      className="text-center py-6 text-gray-500"
-                    >
-                      データがありません
-                    </TableCell>
+                    {AVAILABLE_COLUMNS.filter((col) =>
+                      selectedColumns.includes(col.id)
+                    ).map((column) => (
+                      <TableHead
+                        key={column.id}
+                        className="bg-gray-50 whitespace-nowrap"
+                      >
+                        {column.label}
+                        {column.unit ? ` (${column.unit})` : ""}
+                      </TableHead>
+                    ))}
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {paginatedData.length > 0 ? (
+                    paginatedData.map((row, index) => (
+                      <TableRow key={index} className="hover:bg-gray-50">
+                        {selectedColumns.includes("date") && (
+                          <TableCell className="whitespace-nowrap">
+                            {format(row.date, "yyyy/MM/dd", { locale: ja })}
+                          </TableCell>
+                        )}
+
+                        {selectedColumns.includes("tankName") && (
+                          <TableCell>{row.tankName}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("seedName") && (
+                          <TableCell>{row.seedName}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("fishCount") && (
+                          <TableCell>{row.fishCount}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("waterTemp") && (
+                          <TableCell>{row.waterTemp}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("ph") && (
+                          <TableCell>{row.ph}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("ammonia") && (
+                          <TableCell>{row.ammonia}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("feedAmount") && (
+                          <TableCell>{row.feedAmount}</TableCell>
+                        )}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={selectedColumns.length}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        データがありません
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
 
           {/* ページネーション */}

@@ -62,8 +62,29 @@ export function generateNaturalVariation(
   normalVariationPercent: number = 0.05,
   anomalyChance: number = 0.01,
   anomalyVariationPercent: number = 0.3,
-  precision: number = 1
+  precision: number = 1,
+  paramId?: string
 ): number {
+  //アンモニア用の特別な処理（デモ用）
+  if (paramId === "ammonia") {
+    // アンモニアの場合は異常値の発生確率を高くする（1週間で1-2個程度出るように調整）
+    // 例えば7日間×24時間で168データ点があるとして、1-2個の異常値なら約1%の確率
+    anomalyChance = 0.01;
+
+    // 異常値が出た場合は、警告値や危険値を超えるように大きな変動を加える
+    if (Math.random() < anomalyChance) {
+      // 50%の確率で警告値を超える値（0.8-1.0）
+      // 50%の確率で危険値を超える値（1.0-1.2）
+      if (Math.random() < 0.5) {
+        // 警告値域：0.8-1.0のランダムな値
+        return 0.8 + Math.random() * 0.2;
+      } else {
+        // 危険値域：1.0-1.2のランダムな値
+        return 1.0 + Math.random() * 0.2;
+      }
+    }
+  }
+
   // ステップ①②: 正常値にわずかな変動を加える（-5%〜+5%）
   const normalVariation =
     baseValue * (1 + (Math.random() * 2 - 1) * normalVariationPercent);
@@ -119,13 +140,55 @@ export function generateDailyEquipmentData(
       id: uuidv4(),
       timestamp: timestamp.toISOString(),
       lineId,
-      residualChlorine1: generateNaturalVariation(baseResidualChlorine1),
-      residualChlorine2: generateNaturalVariation(baseResidualChlorine2),
-      ammonia: generateNaturalVariation(baseAmmonia),
-      current: generateNaturalVariation(baseCurrent),
-      flowRate: generateNaturalVariation(baseFlowRate),
+      residualChlorine1: generateNaturalVariation(
+        baseResidualChlorine1,
+        0.05,
+        0.01,
+        0.3,
+        1,
+        "residualChlorine1"
+      ),
+      residualChlorine2: generateNaturalVariation(
+        baseResidualChlorine2,
+        0.05,
+        0.01,
+        0.3,
+        1,
+        "residualChlorine2"
+      ),
+      ammonia: generateNaturalVariation(
+        baseAmmonia,
+        0.05,
+        0.01,
+        0.3,
+        2,
+        "ammonia"
+      ),
+      current: generateNaturalVariation(
+        baseCurrent,
+        0.05,
+        0.01,
+        0.3,
+        1,
+        "current"
+      ),
+      flowRate: generateNaturalVariation(
+        baseFlowRate,
+        0.05,
+        0.01,
+        0.3,
+        1,
+        "flowRate"
+      ),
       polarity,
-      temperature: generateNaturalVariation(baseTemperature),
+      temperature: generateNaturalVariation(
+        baseTemperature,
+        0.05,
+        0.01,
+        0.3,
+        1,
+        "temperature"
+      ),
     });
   }
 

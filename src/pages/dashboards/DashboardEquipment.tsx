@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { PAGE_TITLES } from "../../constants/routes";
 import { COLORS, STATUS, STATUS_DISPLAY, StatusType } from "../../constants/ui";
-import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Card, CardContent } from "../../components/ui/card";
 import { PageContainer } from "../../components/layouts/PageContainer";
 import { useMasterData, useEquipmentData } from "../../hooks/useDataStore";

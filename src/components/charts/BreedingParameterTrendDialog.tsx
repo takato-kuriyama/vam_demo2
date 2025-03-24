@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Calendar } from "../ui/calendar";
-import { CalendarIcon, X } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
+import { Calendar } from "../ui/calendar";
+import { CalendarIcon } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -393,7 +393,7 @@ const BreedingParameterTrendDialog: React.FC<
                   }}
                   domain={[
                     // 最小値は警告下限値・危険下限値・データ最小値のうち最も小さい値よりさらに10%小さく
-                    (dataMin) => {
+                    (dataMin: number) => {
                       const minThreshold = Math.min(
                         parameter.warningMin,
                         parameter.dangerMin
@@ -402,7 +402,7 @@ const BreedingParameterTrendDialog: React.FC<
                       return Math.floor(lowerBound - lowerBound * 0.1);
                     },
                     // 最大値は警告上限値・危険上限値・データ最大値のうち最も大きい値よりさらに10%大きく
-                    (dataMax) => {
+                    (dataMax: number) => {
                       const maxThreshold = Math.max(
                         parameter.warningMax,
                         parameter.dangerMax
@@ -422,33 +422,45 @@ const BreedingParameterTrendDialog: React.FC<
                 />
                 <Legend />
 
-                {/* 警告値ライン */}
-                <ReferenceLine
-                  y={parameter.warningMin}
-                  label="警告下限"
-                  stroke="#FFB020"
-                  strokeDasharray="3 3"
-                />
-                <ReferenceLine
-                  y={parameter.warningMax}
-                  label="警告上限"
-                  stroke="#FFB020"
-                  strokeDasharray="3 3"
-                />
+                {/* 警告値ライン - warningMinが0より大きい場合のみ表示 */}
+                {parameter.warningMin > 0 && (
+                  <ReferenceLine
+                    y={parameter.warningMin}
+                    label="警告下限"
+                    stroke="#FFB020"
+                    strokeDasharray="3 3"
+                  />
+                )}
 
-                {/* 危険値ライン */}
-                <ReferenceLine
-                  y={parameter.dangerMin}
-                  label="危険下限"
-                  stroke="#FF4842"
-                  strokeDasharray="3 3"
-                />
-                <ReferenceLine
-                  y={parameter.dangerMax}
-                  label="危険上限"
-                  stroke="#FF4842"
-                  strokeDasharray="3 3"
-                />
+                {/* 警告値ライン - warningMaxが0より大きい場合のみ表示 */}
+                {parameter.warningMax > 0 && (
+                  <ReferenceLine
+                    y={parameter.warningMax}
+                    label="警告上限"
+                    stroke="#FFB020"
+                    strokeDasharray="3 3"
+                  />
+                )}
+
+                {/* 危険値ライン - dangerMinが0より大きい場合のみ表示 */}
+                {parameter.dangerMin > 0 && (
+                  <ReferenceLine
+                    y={parameter.dangerMin}
+                    label="危険下限"
+                    stroke="#FF4842"
+                    strokeDasharray="3 3"
+                  />
+                )}
+
+                {/* 危険値ライン - dangerMaxが0より大きい場合のみ表示 */}
+                {parameter.dangerMax > 0 && (
+                  <ReferenceLine
+                    y={parameter.dangerMax}
+                    label="危険上限"
+                    stroke="#FF4842"
+                    strokeDasharray="3 3"
+                  />
+                )}
 
                 {/* 各水槽のデータライン */}
                 {selectedTanks.map((tid, index) => (
@@ -512,7 +524,7 @@ const BreedingParameterTrendDialog: React.FC<
             <div className="flex items-center space-x-2">
               <div className="w-4 h-0.5 bg-yellow-500"></div>
               <span className="text-sm text-gray-600">
-                警告値: {parameter.warningMin} ~ {parameter.warningMax}{" "}
+                警告値: ~{parameter.warningMin} / {parameter.warningMax}~{" "}
                 {parameter.unit}
               </span>
             </div>

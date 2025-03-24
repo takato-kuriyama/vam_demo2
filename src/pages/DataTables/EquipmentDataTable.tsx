@@ -278,16 +278,17 @@ const EquipmentDataTable = () => {
           </div>
 
           {/* テーブル */}
-          <div className="overflow-x-auto border rounded-lg">
+          <div className="overflow-x-auto overflow-y-auto border rounded-lg relative max-h-[70vh]">
             <Table className="min-w-full">
-              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
+              <TableHeader className="sticky top-0 z-20 bg-white shadow-sm">
                 <TableRow>
                   {AVAILABLE_COLUMNS.filter((col) =>
                     selectedColumns.includes(col.id)
                   ).map((column) => (
                     <TableHead
                       key={column.id}
-                      className="bg-gray-50 whitespace-nowrap"
+                      className="bg-gray-50 whitespace-nowrap py-3"
+                      style={{ position: "sticky", top: 0 }}
                     >
                       {column.label}
                       {column.unit ? ` (${column.unit})` : ""}

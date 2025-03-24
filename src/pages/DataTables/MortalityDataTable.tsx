@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Image,
 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -26,6 +27,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../../components/ui/dialog";
 import { Calendar } from "../../components/ui/calendar";
 import {
   Table,
@@ -42,12 +50,25 @@ import { exportTableDataToCsv } from "../../lib/export-utils";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
-  { id: "date", label: "日付", required: true, unit: "" },
-  { id: "tankName", label: "水槽名", required: true, unit: "" },
-  { id: "seedName", label: "種苗名", unit: "" },
-  { id: "weight", label: "魚体重", unit: "g" },
-  { id: "symptom", label: "症状", unit: "" },
-  { id: "notes", label: "備考", unit: "" },
+  {
+    id: "date",
+    label: "日付",
+    required: true,
+    unit: "",
+    excludeFromCsv: false,
+  },
+  {
+    id: "tankName",
+    label: "水槽名",
+    required: true,
+    unit: "",
+    excludeFromCsv: false,
+  },
+  { id: "seedName", label: "種苗名", unit: "", excludeFromCsv: false },
+  { id: "weight", label: "魚体重", unit: "g", excludeFromCsv: false },
+  { id: "symptom", label: "症状", unit: "", excludeFromCsv: false },
+  { id: "notes", label: "備考", unit: "", excludeFromCsv: false },
+  { id: "photo", label: "写真", unit: "", excludeFromCsv: true }, // 写真列を追加、CSVからは除外
 ];
 
 const MortalityDataTable = () => {
@@ -68,6 +89,8 @@ const MortalityDataTable = () => {
   const [selectedTankId, setSelectedTankId] = useState<string>("all");
   const [pageSize, setPageSize] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
+  // 写真ダイアログ用の状態
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   // フィルタリングと結合したテーブルデータ
   const [tableData, setTableData] = useState<any[]>([]);
@@ -114,6 +137,7 @@ const MortalityDataTable = () => {
         weight: Math.floor(Math.random() * 200 + 50), // ダミーデータ: 50-250g
         symptom: data.symptom || "食欲不振", // データがなければダミー値
         notes: data.memo || "-",
+        hasPhoto: Math.random() > 0.3, // 70%の確率で写真あり（デモ用）
       };
     });
 
@@ -162,12 +186,15 @@ const MortalityDataTable = () => {
     currentPage * pageSize
   );
 
-  // CSVダウンロード機能
+  // CSVダウンロード機能（写真列を除外）
   const downloadCSV = () => {
+    // CSVから除外するべき列をフィルタリング
+    const csvColumns = AVAILABLE_COLUMNS.filter((col) => !col.excludeFromCsv);
+
     exportTableDataToCsv(
-      AVAILABLE_COLUMNS,
+      csvColumns,
       filteredData,
-      selectedColumns,
+      selectedColumns.filter((col) => col !== "photo"), // 写真列を除外
       "斃死data"
     );
   };
@@ -310,6 +337,26 @@ const MortalityDataTable = () => {
                       {selectedColumns.includes("notes") && (
                         <TableCell>{row.notes}</TableCell>
                       )}
+
+                      {selectedColumns.includes("photo") && (
+                        <TableCell>
+                          {row.hasPhoto ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-1"
+                              onClick={() =>
+                                setSelectedPhoto(`斃死写真_${row.id}`)
+                              }
+                            >
+                              <Image className="h-3 w-3" />
+                              表示
+                            </Button>
+                          ) : (
+                            <span className="text-gray-400 text-sm">なし</span>
+                          )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 ) : (
@@ -343,6 +390,31 @@ const MortalityDataTable = () => {
           )}
         </div>
       </CardContent>
+
+      {/* 写真表示用ダイアログ */}
+      {selectedPhoto && (
+        <Dialog
+          open={!!selectedPhoto}
+          onOpenChange={() => setSelectedPhoto(null)}
+        >
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle>斃死写真</DialogTitle>
+            </DialogHeader>
+            <div className="flex justify-center p-4">
+              <div className="relative w-full aspect-video bg-gray-100 rounded-md flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-gray-500 text-lg">{selectedPhoto}</div>
+                  <div className="mt-2 text-gray-400">(デモ用画像)</div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setSelectedPhoto(null)}>閉じる</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </Card>
   );
 };

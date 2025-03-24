@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Sheet, SheetContent } from "../ui/sheet";
-import { AlertTriangle, Menu } from "lucide-react";
-import { ROUTES } from "../../constants/routes";
+import { Menu } from "lucide-react";
 import { COLORS } from "../../constants/ui";
 import { HEADER_MENU_ITEMS, SIDE_MENU_ITEMS } from "../../constants/menu";
 import { useAlertData } from "../../hooks/useDataStore";
@@ -14,6 +13,19 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { alerts, isLoading } = useAlertData();
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === "/dashboard" && location.pathname.startsWith("/dashboard")) {
+      return true;
+    }
+
+    if (path === "/master" && location.pathname.startsWith("/master")) {
+      return true;
+    }
+
+    return location.pathname === path;
+  };
 
   // 未解決のアラートを取得
   const unresolvedAlerts = !isLoading
@@ -80,7 +92,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </button>
               <SheetContent
                 side="left"
-                className={`w-64 ${COLORS.bg.primary} transform transition-all duration-300 ease-in-out`}
+                className={`w-64 ${COLORS.bg.primary} transform transition-all duration-300 ease-in-out overflow-y-auto`}
               >
                 <nav className="flex flex-col pt-3">
                   {SIDE_MENU_ITEMS.map(renderMenuItem)}
@@ -95,7 +107,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   <Link
                     key={item.id}
                     to={item.path}
-                    className={`flex flex-col items-center p-2 ${COLORS.hover.primary} rounded-lg transition-colors`}
+                    className={`flex flex-col items-center p-2 ${
+                      isActive(item.path) ? "bg-gray-200" : COLORS.hover.primary
+                    } rounded-lg transition-colors`}
                   >
                     {item.icon && <item.icon className="h-5 w-5 mb-1" />}
                     <span className="text-xs font-medium">{item.label}</span>

@@ -103,12 +103,11 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
     // 選択されたラインのデータをフィルタリング
     const filteredData = equipmentData
       .filter((data) => {
+        // 選択されたラインのみフィルタリング
+        if (data.lineId !== lineId) return false;
+
         const dataDate = new Date(data.timestamp);
-        return (
-          data.lineId === lineId &&
-          isAfter(dataDate, startDate) &&
-          isBefore(dataDate, endDate)
-        );
+        return isAfter(dataDate, startDate) && isBefore(dataDate, endDate);
       })
       .sort(
         (a, b) =>
@@ -199,8 +198,6 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
     }
     setTimeRange("custom");
   };
-
-  // この関数は不要になったので削除
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -361,33 +358,45 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
                 />
                 <Legend />
 
-                {/* 警告値ライン */}
-                <ReferenceLine
-                  y={parameter.warningMin}
-                  label="警告下限"
-                  stroke="#FFB020"
-                  strokeDasharray="3 3"
-                />
-                <ReferenceLine
-                  y={parameter.warningMax}
-                  label="警告上限"
-                  stroke="#FFB020"
-                  strokeDasharray="3 3"
-                />
+                {/* 警告値ライン - warningMinが0より大きい場合のみ表示 */}
+                {parameter.warningMin > 0 && (
+                  <ReferenceLine
+                    y={parameter.warningMin}
+                    label="警告下限"
+                    stroke="#FFB020"
+                    strokeDasharray="3 3"
+                  />
+                )}
 
-                {/* 危険値ライン */}
-                <ReferenceLine
-                  y={parameter.dangerMin}
-                  label="危険下限"
-                  stroke="#FF4842"
-                  strokeDasharray="3 3"
-                />
-                <ReferenceLine
-                  y={parameter.dangerMax}
-                  label="危険上限"
-                  stroke="#FF4842"
-                  strokeDasharray="3 3"
-                />
+                {/* 警告値ライン - warningMaxが0より大きい場合のみ表示 */}
+                {parameter.warningMax > 0 && (
+                  <ReferenceLine
+                    y={parameter.warningMax}
+                    label="警告上限"
+                    stroke="#FFB020"
+                    strokeDasharray="3 3"
+                  />
+                )}
+
+                {/* 危険値ライン - dangerMinが0より大きい場合のみ表示 */}
+                {parameter.dangerMin > 0 && (
+                  <ReferenceLine
+                    y={parameter.dangerMin}
+                    label="危険下限"
+                    stroke="#FF4842"
+                    strokeDasharray="3 3"
+                  />
+                )}
+
+                {/* 危険値ライン - dangerMaxが0より大きい場合のみ表示 */}
+                {parameter.dangerMax > 0 && (
+                  <ReferenceLine
+                    y={parameter.dangerMax}
+                    label="危険上限"
+                    stroke="#FF4842"
+                    strokeDasharray="3 3"
+                  />
+                )}
 
                 {/* データライン */}
                 <Line

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
-import { CalendarIcon, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { PageContainer } from "../../components/layouts/PageContainer";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -30,12 +30,6 @@ import {
   DialogFooter,
   DialogDescription,
 } from "../../components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../components/ui/popover";
-import { Calendar } from "../../components/ui/calendar";
 import { useMasterData } from "../../hooks/useDataStore";
 import { DatePicker } from "../../components/ui/date-picker";
 import { FormField } from "../../components/ui/form-field";
@@ -242,6 +236,7 @@ const FishTransfer: React.FC = () => {
 
   // 水槽名を取得
   const getTankName = (id: string) => {
+    if (id === "shipping") return "出荷";
     const tank = masterData.tanks.find((t) => t.id === id);
     return tank ? tank.name : id;
   };
@@ -321,7 +316,7 @@ const FishTransfer: React.FC = () => {
 
       {/* 移動記録追加ダイアログ */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md bg-white">
+        <DialogContent className="max-w-md bg-white max-h-[70vh] overflow-y-auto w-[95vw] md:w-full">
           <DialogHeader>
             <DialogTitle>新規水槽間移動記録</DialogTitle>
             <DialogDescription>
@@ -329,7 +324,7 @@ const FishTransfer: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 overflow-y-auto">
             {/* 日付選択 */}
             <FormField id="date" label="日付" required>
               <DatePicker
@@ -402,6 +397,17 @@ const FishTransfer: React.FC = () => {
                   <SelectValue placeholder="移動先水槽を選択" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="shipping">出荷</SelectItem>
+
+                  {/* 水槽の選択肢 */}
+                  <SelectItem
+                    value="tankSeparator"
+                    disabled
+                    className="py-2 font-semibold text-gray-500"
+                  >
+                    ― 水槽 ―
+                  </SelectItem>
+
                   {tankOptions
                     .filter((tank) => tank.id !== formData.sourceTankId) // 移動元と同じ水槽は除外
                     .map((tank) => (
@@ -420,6 +426,7 @@ const FishTransfer: React.FC = () => {
                 id="quantity"
                 name="quantity"
                 type="number"
+                inputMode="numeric"
                 value={formData.quantity || ""}
                 onChange={handleInputChange}
                 min={1}
