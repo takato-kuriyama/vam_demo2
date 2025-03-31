@@ -10,7 +10,6 @@ import { PAGE_TITLES } from "../../constants/routes";
 import { COLORS } from "../../constants/ui";
 import BreedingDataTable from "./BreedingDataTable";
 import EquipmentDataTable from "./EquipmentDataTable";
-import MortalityDataTable from "./MortalityDataTable";
 import { TabContainer } from "../../components/ui/tab-container";
 
 // メインのデータ一覧ページコンポーネント
@@ -29,7 +28,6 @@ const DataListing = () => {
             items={[
               { id: "breeding", label: "飼育槽データ" },
               { id: "equipment", label: "ろ過部データ" },
-              { id: "mortality", label: "斃死データ" },
             ]}
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -42,9 +40,6 @@ const DataListing = () => {
               </TabsContent>
               <TabsContent value="equipment">
                 <EquipmentDataTable />
-              </TabsContent>
-              <TabsContent value="mortality">
-                <MortalityDataTable />
               </TabsContent>
             </Tabs>
           </div>

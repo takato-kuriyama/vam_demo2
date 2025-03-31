@@ -37,9 +37,11 @@ import {
   useMasterData,
   useBreedingData,
   useFeedingData,
+  useFishCountData,
 } from "../../hooks/useDataStore";
 import { Pagination } from "../../components/ui/pagination";
 import { exportTableDataToCsv } from "../../lib/export-utils";
+import MortalityDetailsModal from "./MortalityDetailsModal";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
@@ -47,6 +49,7 @@ const AVAILABLE_COLUMNS = [
   { id: "tankName", label: "水槽名", required: true, unit: "" },
   { id: "seedName", label: "種苗名", unit: "" },
   { id: "fishCount", label: "尾数", unit: "匹" },
+  { id: "mortality", label: "総斃死数", unit: "匹" }, // 新しい列を追加
   { id: "waterTemp", label: "水温", unit: "℃" },
   { id: "ph", label: "pH", unit: "" },
   { id: "ammonia", label: "アンモニア", unit: "ppm" },
@@ -63,6 +66,7 @@ const BreedingDataTable = () => {
     isLoading: isBreedingLoading,
   } = useBreedingData();
   const { feedingData, isLoading: isFeedingLoading } = useFeedingData();
+  const { fishCountData, isLoading: isFishCountLoading } = useFishCountData();
 
   // UI状態
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -72,6 +76,20 @@ const BreedingDataTable = () => {
   const [selectedTankId, setSelectedTankId] = useState<string>("all");
   const [pageSize, setPageSize] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // 斃死詳細モーダル用の状態
+  const [isMortalityModalOpen, setIsMortalityModalOpen] = useState(false);
+  const [selectedMortalityData, setSelectedMortalityData] = useState<{
+    date: Date;
+    tankName: string;
+    tankId: string;
+    mortalityCount: number;
+  }>({
+    date: new Date(),
+    tankName: "",
+    tankId: "",
+    mortalityCount: 0,
+  });
 
   // フィルタリングと結合したテーブルデータ
   const [tableData, setTableData] = useState<any[]>([]);
@@ -92,7 +110,13 @@ const BreedingDataTable = () => {
 
   // 飼育データと給餌データを結合してテーブルデータを作成
   useEffect(() => {
-    if (isBreedingLoading || isFeedingLoading || isMasterLoading) return;
+    if (
+      isBreedingLoading ||
+      isFeedingLoading ||
+      isMasterLoading ||
+      isFishCountLoading
+    )
+      return;
 
     // 水槽IDと名前のマッピングを作成
     const tankMap = new Map();
@@ -118,6 +142,20 @@ const BreedingDataTable = () => {
       }
     });
 
+    // 日ごとの斃死数を計算
+    const mortalityCounts = new Map();
+    fishCountData.forEach((data) => {
+      const date = new Date(data.timestamp).toISOString().split("T")[0];
+      const tankId = data.tankId;
+      const key = `${date}-${tankId}`;
+
+      if (mortalityCounts.has(key)) {
+        mortalityCounts.set(key, mortalityCounts.get(key) + data.mortality);
+      } else {
+        mortalityCounts.set(key, data.mortality);
+      }
+    });
+
     // 飼育データを加工
     const processedData = breedingData.map((data) => {
       const date = new Date(data.timestamp);
@@ -134,6 +172,7 @@ const BreedingDataTable = () => {
         tankName: tankMap.get(tankId) || tankId,
         seedName: "20250228マリンテックカワハギ", // ダミーデータ
         fishCount: Math.floor(Math.random() * 1000) + 100, // ダミーデータ
+        mortality: mortalityCounts.get(key) || 1, // 斃死数を追加
         waterTemp: data.temperature,
         ph: data.ph,
         ammonia: (Math.random() * 0.5 + 0.1).toFixed(2), // ダミーデータ
@@ -164,9 +203,11 @@ const BreedingDataTable = () => {
   }, [
     breedingData,
     feedingData,
+    fishCountData,
     masterData.tanks,
     isBreedingLoading,
     isFeedingLoading,
+    isFishCountLoading,
     isMasterLoading,
   ]);
 
@@ -221,7 +262,26 @@ const BreedingDataTable = () => {
     );
   };
 
-  if (isBreedingLoading || isFeedingLoading || isMasterLoading) {
+  // 斃死数クリック時のハンドラ
+  const handleMortalityClick = (row: any) => {
+    // 斃死数が0の場合は何もしない
+    if (row.mortality <= 0) return;
+
+    setSelectedMortalityData({
+      date: row.date,
+      tankName: row.tankName,
+      tankId: row.tankId,
+      mortalityCount: row.mortality,
+    });
+    setIsMortalityModalOpen(true);
+  };
+
+  if (
+    isBreedingLoading ||
+    isFeedingLoading ||
+    isMasterLoading ||
+    isFishCountLoading
+  ) {
     return (
       <div className="flex justify-center items-center py-12">
         <p className="text-gray-500">データを読み込み中...</p>
@@ -420,6 +480,19 @@ const BreedingDataTable = () => {
                           <TableCell>{row.fishCount}</TableCell>
                         )}
 
+                        {selectedColumns.includes("mortality") && (
+                          <TableCell
+                            className={
+                              row.mortality > 0
+                                ? "text-blue-600 cursor-pointer hover:underline"
+                                : ""
+                            }
+                            onClick={() => handleMortalityClick(row)}
+                          >
+                            {row.mortality}
+                          </TableCell>
+                        )}
+
                         {selectedColumns.includes("waterTemp") && (
                           <TableCell>{row.waterTemp}</TableCell>
                         )}
@@ -469,6 +542,15 @@ const BreedingDataTable = () => {
           )}
         </div>
       </CardContent>
+
+      {/* 斃死詳細モーダル */}
+      <MortalityDetailsModal
+        isOpen={isMortalityModalOpen}
+        onClose={() => setIsMortalityModalOpen(false)}
+        date={selectedMortalityData.date}
+        tankName={selectedMortalityData.tankName}
+        mortalityCount={selectedMortalityData.mortalityCount}
+      />
     </Card>
   );
 };
