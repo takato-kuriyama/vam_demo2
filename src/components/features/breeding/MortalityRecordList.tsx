@@ -5,7 +5,7 @@ import { MortalityRecord } from "../../../types/dataManagement";
 
 interface MortalityRecordListProps {
   mortalityRecords: MortalityRecord[];
-  totalMortality: number;
+  // totalMortalityプロパティを削除
   onAddClick: () => void;
   onEditRecord: (id: string) => void;
   onRemoveRecord: (id: string) => void;
@@ -13,19 +13,21 @@ interface MortalityRecordListProps {
 
 const MortalityRecordList: React.FC<MortalityRecordListProps> = ({
   mortalityRecords,
-  totalMortality,
+  // totalMortalityパラメータを削除
   onAddClick,
   onEditRecord,
   onRemoveRecord,
 }) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">斃死情報</h3>
-
       <div className="border rounded-lg overflow-hidden">
         <div className="bg-gray-50 p-3 border-b">
           <div className="flex justify-between items-center">
-            <span className="font-medium">総斃死数: {totalMortality}匹</span>
+            {/* 総斃死数表示を削除、もしくは下記コメントアウト */}
+            {/* <span className="font-medium">総斃死数: {totalMortality}匹</span> */}
+            <span className="font-medium">
+              記録件数: {mortalityRecords.length}件
+            </span>
             <Button
               type="button"
               variant="outline"

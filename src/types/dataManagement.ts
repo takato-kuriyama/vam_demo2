@@ -39,6 +39,13 @@ export interface BreedingFormData {
   culling: string;
   memo: string;
   csvExportData: Record<string, any>; // CSV出力用データ
+  averageWeight?: string;
+  nh4?: string;
+  no2?: string;
+  no3?: string;
+  tClo?: string;
+  cloDp?: string;
+  ph?: string;
 }
 
 // CSV出力データの型
@@ -67,8 +74,15 @@ export interface CsvExportData {
   transferOut: string;
   culling: string;
   memo: string;
-  customFields: {
-    name: string;
-    value: string;
-  }[];
+  averageWeight?: string;
+  nh4?: string;
+  no2?: string;
+  no3?: string;
+  tClo?: string;
+  cloDp?: string;
+  ph?: string;
+  // customFields: {
+  //   name: string;
+  //   value: string;
+  // }[];
 }

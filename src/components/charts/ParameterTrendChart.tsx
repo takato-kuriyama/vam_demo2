@@ -27,7 +27,7 @@ import { ja } from "date-fns/locale";
 import { EquipmentData, ParameterDefinition } from "../../types/dataModels";
 
 // 時間範囲の定義
-type TimeRange = "24h" | "1w" | "1m" | "3m" | "custom";
+type TimeRange = "24h" | "3d" | "1w" | "1m" | "custom";
 
 interface ParameterTrendChartProps {
   isOpen: boolean;
@@ -83,14 +83,14 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
       case "24h":
         startDate = subDays(now, 1);
         break;
+      case "3d":
+        startDate = subDays(now, 3);
+        break;
       case "1w":
         startDate = subWeeks(now, 1);
         break;
       case "1m":
         startDate = subMonths(now, 1);
-        break;
-      case "3m":
-        startDate = subMonths(now, 3);
         break;
       case "custom":
         startDate = customStartDate || subWeeks(now, 1);
@@ -214,6 +214,13 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
                 24時間
               </Button>
               <Button
+                variant={timeRange === "3d" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTimeRange("3d")}
+              >
+                3日間
+              </Button>
+              <Button
                 variant={timeRange === "1w" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setTimeRange("1w")}
@@ -226,13 +233,6 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
                 onClick={() => setTimeRange("1m")}
               >
                 1ヶ月
-              </Button>
-              <Button
-                variant={timeRange === "3m" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeRange("3m")}
-              >
-                3ヶ月
               </Button>
               {/* カスタム期間選択 */}
               <div className="flex items-center gap-2">
@@ -320,6 +320,41 @@ const ParameterTrendChart: React.FC<ParameterTrendChartProps> = ({
                     value: "時間",
                     position: "insideBottomRight",
                     offset: -10,
+                  }}
+                  interval={(() => {
+                    switch (timeRange) {
+                      case "24h":
+                        return 1;
+                      case "3d":
+                        return 10;
+                      case "1w":
+                        return 17;
+                      case "1m":
+                        return 40;
+                      default:
+                        return 50;
+                    }
+                  })()}
+                  tickCount={12} // 目盛りを12個に固定(効かない...)
+                  tickFormatter={(value) => {
+                    const date = new Date(
+                      chartData.find((d) => d.displayTime === value)
+                        ?.timestamp || value
+                    );
+                    switch (timeRange) {
+                      case "24h":
+                        return format(date, "HH:mm", { locale: ja });
+                      case "3d":
+                        return format(date, "MM/dd", { locale: ja });
+                      case "1w":
+                        return format(date, "MM/dd", { locale: ja });
+                      case "1m":
+                        return format(date, "MM/dd", { locale: ja });
+                      case "custom":
+                        return format(date, "MM/dd", { locale: ja });
+                      default:
+                        return value;
+                    }
                   }}
                 />
                 <YAxis

@@ -10,6 +10,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
 import { Label } from "../../components/ui/label";
+import { Input } from "../../components/ui/input"; // 追加: Input コンポーネントをインポート
 import {
   Select,
   SelectContent,
@@ -36,8 +37,7 @@ import { useMasterData } from "../../hooks/useDataStore";
 import FeedEntryForm from "../../components/features/breeding/FeedEntryForm";
 import MortalityRecordList from "../../components/features/breeding/MortalityRecordList";
 import MortalityRecordDialog from "../../components/features/breeding/MortalityRecordDialog";
-import CustomFieldsList from "../../components/features/breeding/CustomFieldsList";
-import CustomFieldDialog from "../../components/features/breeding/CustomFieldDialog";
+// カスタム項目関連のインポートを削除
 
 // ユーティリティ関数のインポート
 import {
@@ -64,11 +64,19 @@ const BreedingManagement: React.FC = () => {
     tankId: "",
     waterTemp: "",
     feedingActivity: "",
-    mortality: 0,
+    mortality: 0, // 総斃死数
     transferIn: "",
     transferOut: "",
     culling: "",
     memo: "",
+    // 新規追加フィールド
+    averageWeight: "",
+    nh4: "",
+    no2: "",
+    no3: "",
+    tClo: "",
+    cloDp: "",
+    ph: "",
     csvExportData: {}, // CSV出力用データ
   });
 
@@ -86,9 +94,7 @@ const BreedingManagement: React.FC = () => {
     createEmptyMortalityRecord()
   );
 
-  // カスタム項目
-  const [customFields, setCustomFields] = useState<CustomField[]>([]);
-  const [isCustomFieldModalOpen, setIsCustomFieldModalOpen] = useState(false);
+  // カスタム項目関連の状態を削除
 
   // タンクオプションの取得 (アクティブなもののみ)
   const tankOptions = masterData.tanks
@@ -111,12 +117,7 @@ const BreedingManagement: React.FC = () => {
       setSelectedTank(tankOptions[0].id);
       setFormData((prev) => ({ ...prev, tankId: tankOptions[0].id }));
     }
-
-    // 永続的なカスタム項目を読み込み
-    const persistedFields = loadPersistedCustomFields();
-    if (persistedFields.length > 0) {
-      setCustomFields(persistedFields);
-    }
+    // カスタム項目の読み込み処理を削除
   }, [tankOptions, selectedTank]);
 
   // 前回の給餌情報をロード
@@ -190,10 +191,6 @@ const BreedingManagement: React.FC = () => {
   // 斃死記録を削除
   const removeMortalityRecord = (id: string) => {
     setMortalityRecords((prev) => prev.filter((record) => record.id !== id));
-    // 総数も更新
-    updateTotalMortality(
-      mortalityRecords.filter((record) => record.id !== id).length
-    );
   };
 
   // 斃死記録の追加・更新を確定
@@ -208,7 +205,6 @@ const BreedingManagement: React.FC = () => {
         id: Date.now().toString(),
       };
       setMortalityRecords([...mortalityRecords, newRecord]);
-      updateTotalMortality(mortalityRecords.length + 1);
     } else {
       // 更新
       setMortalityRecords((prev) =>
@@ -219,43 +215,7 @@ const BreedingManagement: React.FC = () => {
     setIsAddMortalityOpen(false);
   };
 
-  // 合計斃死数を更新
-  const updateTotalMortality = (count: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      mortality: count,
-    }));
-  };
-
-  // カスタム項目の追加
-  const addCustomField = (name: string, isPermanent: boolean) => {
-    const newField = createCustomField(name, isPermanent);
-    const updatedFields = [...customFields, newField];
-    setCustomFields(updatedFields);
-
-    // 永続的なフィールドなら保存
-    if (isPermanent) {
-      saveCustomFieldsToStorage(updatedFields);
-    }
-  };
-
-  // カスタム項目の値を変更
-  const handleCustomFieldChange = (id: string, value: string) => {
-    setCustomFields(
-      customFields.map((field) =>
-        field.id === id ? { ...field, value } : field
-      )
-    );
-  };
-
-  // カスタム項目の削除
-  const removeCustomField = (id: string) => {
-    const updatedFields = customFields.filter((field) => field.id !== id);
-    setCustomFields(updatedFields);
-
-    // 永続的なフィールドの保存を更新
-    saveCustomFieldsToStorage(updatedFields);
-  };
+  // カスタム項目関連のメソッドを削除
 
   // フォーム入力ハンドラ
   const handleInputChange = (
@@ -280,8 +240,7 @@ const BreedingManagement: React.FC = () => {
 
     alert("データが保存されました");
 
-    // 一時的な項目は消去
-    setCustomFields(customFields.filter((field) => field.isPermanent));
+    // カスタム項目関連の処理を削除
   };
 
   if (isLoading) {
@@ -362,22 +321,136 @@ const BreedingManagement: React.FC = () => {
                 onChange={setFeedEntries}
               />
 
-              {/* 斃死情報リスト */}
+              {/* 総斃死数フィールド - 新規追加 */}
+              <div className="space-y-2">
+                <Label htmlFor="mortality">総斃死数（匹）</Label>
+                <Input
+                  id="mortality"
+                  name="mortality"
+                  type="number"
+                  inputMode="numeric"
+                  value={formData.mortality || ""}
+                  onChange={handleInputChange}
+                  placeholder="総斃死数を入力"
+                  className="w-full max-w-[200px]"
+                />
+              </div>
+
+              {/* 斃死情報リスト - mortalityは渡さないように変更 */}
               <MortalityRecordList
                 mortalityRecords={mortalityRecords}
-                totalMortality={formData.mortality}
                 onAddClick={openAddMortalityDialog}
                 onEditRecord={editMortalityRecord}
                 onRemoveRecord={removeMortalityRecord}
               />
 
-              {/* カスタム項目リスト */}
+              {/* 平均魚体重フィールド - 新規追加 */}
+              <div className="space-y-2">
+                <Label htmlFor="averageWeight">平均魚体重 (g)</Label>
+                <Input
+                  id="averageWeight"
+                  name="averageWeight"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.1"
+                  value={formData.averageWeight || ""}
+                  onChange={handleInputChange}
+                  placeholder="平均魚体重を入力"
+                  className="w-full max-w-[200px]"
+                />
+              </div>
+
+              {/* 水質情報セクション - 新規追加 */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nh4">NH4 (mg/L)</Label>
+                    <Input
+                      id="nh4"
+                      name="nh4"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      value={formData.nh4 || ""}
+                      onChange={handleInputChange}
+                      placeholder="NH4を入力"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="no2">NO2 (mg/L)</Label>
+                    <Input
+                      id="no2"
+                      name="no2"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      value={formData.no2 || ""}
+                      onChange={handleInputChange}
+                      placeholder="NO2を入力"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="no3">NO3 (mg/L)</Label>
+                    <Input
+                      id="no3"
+                      name="no3"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      value={formData.no3 || ""}
+                      onChange={handleInputChange}
+                      placeholder="NO3を入力"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tClo">T-ClO (mg/L)</Label>
+                    <Input
+                      id="tClo"
+                      name="tClo"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      value={formData.tClo || ""}
+                      onChange={handleInputChange}
+                      placeholder="T-ClOを入力"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cloDp">ClO-DP (mg/L)</Label>
+                    <Input
+                      id="cloDp"
+                      name="cloDp"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      value={formData.cloDp || ""}
+                      onChange={handleInputChange}
+                      placeholder="ClO-DPを入力"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ph">pH</Label>
+                    <Input
+                      id="ph"
+                      name="ph"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      value={formData.ph || ""}
+                      onChange={handleInputChange}
+                      placeholder="pHを入力"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* カスタム項目リスト
               <CustomFieldsList
                 customFields={customFields}
                 onAddClick={() => setIsCustomFieldModalOpen(true)}
                 onRemoveField={removeCustomField}
                 onChangeField={handleCustomFieldChange}
-              />
+              /> */}
 
               {/* メモ */}
               <div className="space-y-2">
@@ -408,12 +481,12 @@ const BreedingManagement: React.FC = () => {
         onSave={saveMortalityRecord}
       />
 
-      {/* カスタム項目追加ダイアログ */}
+      {/* カスタム項目追加ダイアログ
       <CustomFieldDialog
         isOpen={isCustomFieldModalOpen}
         onClose={() => setIsCustomFieldModalOpen(false)}
         onAdd={addCustomField}
-      />
+      /> */}
     </PageContainer>
   );
 };

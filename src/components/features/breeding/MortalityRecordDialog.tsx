@@ -107,11 +107,7 @@ const MortalityRecordDialog: React.FC<MortalityRecordDialogProps> = ({
 
   // 保存処理
   const handleSubmit = () => {
-    // バリデーション
-    if (!mortalityData.symptoms) {
-      alert("症状を入力してください");
-      return;
-    }
+    // バリデーション写真...?
 
     onSave(mortalityData);
   };
@@ -166,7 +162,6 @@ const MortalityRecordDialog: React.FC<MortalityRecordDialogProps> = ({
                   }))
                 }
                 placeholder="例: 飛び出し、魚病など"
-                required
               />
             </div>
 
