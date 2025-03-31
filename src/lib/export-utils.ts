@@ -39,7 +39,12 @@ export function exportToCsv(
 
 // データテーブル用のCSVエクスポート関数
 export function exportTableDataToCsv(
-  columns: { id: string; label: string; unit?: string }[],
+  columns: {
+    id: string;
+    label: string;
+    unit?: string;
+    csvFieldId?: string; // 特定のフィールドIDを使用する場合
+  }[],
   data: any[],
   selectedColumns: string[],
   filename: string
@@ -52,11 +57,18 @@ export function exportTableDataToCsv(
   // データ行の作成
   const rows = data.map((row) => {
     return selectedColumns.map((colId) => {
-      if (colId === "date" && row.date instanceof Date) {
+      // 該当する列定義を取得
+      const column = columns.find((col) => col.id === colId);
+
+      // どのフィールドを使用するか決定
+      const fieldId = column?.csvFieldId || colId;
+
+      if (fieldId === "date" && row.date instanceof Date) {
         return format(row.date, "yyyy/MM/dd", { locale: ja });
       }
-      return row[colId] !== undefined
-        ? String(row[colId]).replace(/,/g, "、")
+
+      return row[fieldId] !== undefined
+        ? String(row[fieldId]).replace(/,/g, "、")
         : ""; // カンマをリプレース
     });
   });

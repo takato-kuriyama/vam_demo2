@@ -42,6 +42,7 @@ import {
 import { Pagination } from "../../components/ui/pagination";
 import { exportTableDataToCsv } from "../../lib/export-utils";
 import MortalityDetailsModal from "./MortalityDetailsModal";
+import { getFeedTypeName } from "../../constants/masterData/parameters";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
@@ -49,11 +50,16 @@ const AVAILABLE_COLUMNS = [
   { id: "tankName", label: "水槽名", required: true, unit: "" },
   { id: "seedName", label: "種苗名", unit: "" },
   { id: "fishCount", label: "尾数", unit: "匹" },
-  { id: "mortality", label: "総斃死数", unit: "匹" }, // 新しい列を追加
+  { id: "mortality", label: "総斃死数", unit: "匹" },
   { id: "waterTemp", label: "水温", unit: "℃" },
   { id: "ph", label: "pH", unit: "" },
   { id: "ammonia", label: "アンモニア", unit: "ppm" },
   { id: "feedAmount", label: "給餌量(合計)", unit: "g" },
+  // 新しい餌種類の列
+  { id: "feedType1", label: "餌種類①", unit: "" },
+  { id: "feedAmount1", label: "給餌量①", unit: "g" },
+  { id: "feedType2", label: "餌種類②", unit: "" },
+  { id: "feedAmount2", label: "給餌量②", unit: "g" },
 ];
 
 const BreedingDataTable = () => {
@@ -70,7 +76,19 @@ const BreedingDataTable = () => {
 
   // UI状態
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    AVAILABLE_COLUMNS.map((col) => col.id) // 全項目を初期選択状態にする
+    AVAILABLE_COLUMNS.filter(
+      (col) =>
+        col.required ||
+        [
+          "seedName",
+          "fishCount",
+          "mortality",
+          "waterTemp",
+          "ph",
+          "ammonia",
+          "feedAmount",
+        ].includes(col.id)
+    ).map((col) => col.id)
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTankId, setSelectedTankId] = useState<string>("all");
@@ -124,22 +142,50 @@ const BreedingDataTable = () => {
       tankMap.set(tank.id, tank.name);
     });
 
-    // 日ごとの給餌量合計を計算
-    const feedingTotals = new Map();
+    // 日ごとの給餌情報をマッピング
+    const feedingDataByDayAndTank = new Map();
+
     feedingData.forEach((feed) => {
       const date = new Date(feed.timestamp).toISOString().split("T")[0];
       const tankId = feed.tankId;
       const key = `${date}-${tankId}`;
 
-      const amount1 = parseFloat(feed.feedAmount1) || 0;
-      const amount2 = parseFloat(feed.feedAmount2) || 0;
-      const total = amount1 + amount2;
-
-      if (feedingTotals.has(key)) {
-        feedingTotals.set(key, feedingTotals.get(key) + total);
-      } else {
-        feedingTotals.set(key, total);
+      if (!feedingDataByDayAndTank.has(key)) {
+        feedingDataByDayAndTank.set(key, {
+          totalAmount: 0,
+          feedType1: feed.feedType1,
+          feedAmount1: 0,
+          feedType2: feed.feedType2,
+          feedAmount2: 0,
+        });
       }
+
+      const currentFeedingData = feedingDataByDayAndTank.get(key);
+
+      // 給餌量1を追加（文字列から数値に変換）
+      const amount1 =
+        typeof feed.feedAmount1 === "string"
+          ? parseFloat(feed.feedAmount1) || 0
+          : feed.feedAmount1 || 0;
+
+      // 給餌量2を追加（文字列から数値に変換）
+      const amount2 =
+        typeof feed.feedAmount2 === "string"
+          ? parseFloat(feed.feedAmount2) || 0
+          : feed.feedAmount2 || 0;
+
+      // 合計給餌量を更新
+      currentFeedingData.totalAmount += amount1 + amount2;
+
+      // 最初の給餌データの種類と量を保存
+      if (currentFeedingData.feedAmount1 === 0) {
+        currentFeedingData.feedAmount1 = amount1;
+      }
+      if (currentFeedingData.feedAmount2 === 0) {
+        currentFeedingData.feedAmount2 = amount2;
+      }
+
+      feedingDataByDayAndTank.set(key, currentFeedingData);
     });
 
     // 日ごとの斃死数を計算
@@ -163,20 +209,38 @@ const BreedingDataTable = () => {
       const tankId = data.tankId;
       const key = `${dateStr}-${tankId}`;
 
-      // 以下はダミーデータ - 実際のアプリでは適切なデータソースから取得
+      // 給餌データを取得
+      const feedingInfo = feedingDataByDayAndTank.get(key) || {
+        totalAmount: 0,
+        feedType1: "",
+        feedAmount1: 0,
+        feedType2: "",
+        feedAmount2: 0,
+      };
+
+      // 以下はダミーデータも含む
       return {
         id: `${dateStr}-${tankId}`,
         date: date,
-        dateStr: dateStr, // 日付文字列を追加（グループ化に使用）
+        dateStr: dateStr,
         tankId: tankId,
         tankName: tankMap.get(tankId) || tankId,
-        seedName: "20250228マリンテックカワハギ", // ダミーデータ
-        fishCount: Math.floor(Math.random() * 1000) + 100, // ダミーデータ
-        mortality: mortalityCounts.get(key) || 1, // 斃死数を追加
+        // 種苗名はダミーデータとして固定で設定
+        seedName: "20250228マリンテックカワハギ",
+        // 尾数のダミーデータ
+        fishCount: Math.floor(Math.random() * 1000) + 100,
+        mortality: mortalityCounts.get(key) || 1,
         waterTemp: data.temperature,
         ph: data.ph,
         ammonia: (Math.random() * 0.5 + 0.1).toFixed(2), // ダミーデータ
-        feedAmount: feedingTotals.get(key) || 0,
+        // 給餌情報
+        feedAmount: feedingInfo.totalAmount,
+        feedType1: feedingInfo.feedType1,
+        feedType1Name: getFeedTypeName(feedingInfo.feedType1), // 餌種類の名前を追加
+        feedAmount1: feedingInfo.feedAmount1,
+        feedType2: feedingInfo.feedType2,
+        feedType2Name: getFeedTypeName(feedingInfo.feedType2), // 餌種類の名前を追加
+        feedAmount2: feedingInfo.feedAmount2,
       };
     });
 
@@ -254,8 +318,19 @@ const BreedingDataTable = () => {
 
   // CSVダウンロード機能
   const downloadCSV = () => {
+    // CSVに出力するデータをカスタマイズ
+    const enhancedColumns = AVAILABLE_COLUMNS.map((column) => {
+      // 餌種類の列を特別扱い
+      if (column.id === "feedType1") {
+        return { ...column, csvFieldId: "feedType1Name" };
+      } else if (column.id === "feedType2") {
+        return { ...column, csvFieldId: "feedType2Name" };
+      }
+      return column;
+    });
+
     exportTableDataToCsv(
-      AVAILABLE_COLUMNS,
+      enhancedColumns,
       filteredData,
       selectedColumns,
       "飼育槽data"
@@ -441,8 +516,8 @@ const BreedingDataTable = () => {
               flexDirection: "column",
             }}
           >
-            <div className="overflow-y-auto max-h-[70vh] overflow-x-auto border rounded-lg">
-              <Table className="min-w-full">
+            <div className="overflow-y-auto overflow-x-auto max-h-[70vh] border rounded-lg">
+              <Table className="min-w-max">
                 <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
                   <TableRow>
                     {AVAILABLE_COLUMNS.filter((col) =>
@@ -507,6 +582,23 @@ const BreedingDataTable = () => {
 
                         {selectedColumns.includes("feedAmount") && (
                           <TableCell>{row.feedAmount}</TableCell>
+                        )}
+
+                        {/* 餌種類の列 - 名前で表示 */}
+                        {selectedColumns.includes("feedType1") && (
+                          <TableCell>{row.feedType1Name}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("feedAmount1") && (
+                          <TableCell>{row.feedAmount1}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("feedType2") && (
+                          <TableCell>{row.feedType2Name}</TableCell>
+                        )}
+
+                        {selectedColumns.includes("feedAmount2") && (
+                          <TableCell>{row.feedAmount2}</TableCell>
                         )}
                       </TableRow>
                     ))
