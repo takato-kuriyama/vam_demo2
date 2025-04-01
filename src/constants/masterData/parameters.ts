@@ -39,7 +39,7 @@ export const PARAMETERS: ParameterDefinition[] = [
   },
   {
     id: "current",
-    name: "電解電流値aa",
+    name: "電解電流値",
     unit: "A",
     normalMin: 11.0,
     normalMax: 13.0,
@@ -60,17 +60,17 @@ export const PARAMETERS: ParameterDefinition[] = [
     dangerMax: 36,
   },
 
-  // 飼育槽パラメータ
+  // 飼育槽パラメータ - DOを追加
   {
-    id: "oxygenSaturation",
-    name: "酸素飽和度",
-    unit: "%",
-    normalMin: 75,
-    normalMax: 95,
-    warningMin: 70,
-    warningMax: 100,
-    dangerMin: 65,
-    dangerMax: 110,
+    id: "do",
+    name: "DO",
+    unit: "mg/L",
+    normalMin: 6.0,
+    normalMax: 9.0,
+    warningMin: 5.0,
+    warningMax: 10.0,
+    dangerMin: 4.0,
+    dangerMax: 11.0,
   },
   {
     id: "ph",
@@ -131,6 +131,76 @@ export const PARAMETERS: ParameterDefinition[] = [
   },
 ];
 
+// 手入力データのパラメータ定義
+export const MANUAL_PARAMETERS = [
+  {
+    id: "nh4",
+    name: "NH4",
+    unit: "mg/L",
+    normalMin: 0.0,
+    normalMax: 0.5,
+    warningMin: 0.0,
+    warningMax: 1.0,
+    dangerMin: 0.0,
+    dangerMax: 2.0,
+  },
+  {
+    id: "no2",
+    name: "NO2",
+    unit: "mg/L",
+    normalMin: 0.0,
+    normalMax: 0.05,
+    warningMin: 0.0,
+    warningMax: 0.1,
+    dangerMin: 0.0,
+    dangerMax: 0.2,
+  },
+  {
+    id: "no3",
+    name: "NO3",
+    unit: "mg/L",
+    normalMin: 0.0,
+    normalMax: 10.0,
+    warningMin: 0.0,
+    warningMax: 15.0,
+    dangerMin: 0.0,
+    dangerMax: 20.0,
+  },
+  {
+    id: "tClo",
+    name: "T-ClO",
+    unit: "mg/L",
+    normalMin: 0.0,
+    normalMax: 0.2,
+    warningMin: 0.0,
+    warningMax: 0.3,
+    dangerMin: 0.0,
+    dangerMax: 0.4,
+  },
+  {
+    id: "cloDp",
+    name: "ClO-DP",
+    unit: "mg/L",
+    normalMin: 0.0,
+    normalMax: 0.1,
+    warningMin: 0.0,
+    warningMax: 0.2,
+    dangerMin: 0.0,
+    dangerMax: 0.3,
+  },
+  {
+    id: "ph",
+    name: "pH",
+    unit: "",
+    normalMin: 6.8,
+    normalMax: 7.5,
+    warningMin: 6.5,
+    warningMax: 8.0,
+    dangerMin: 6.0,
+    dangerMax: 8.5,
+  },
+];
+
 // 餌種類の定義
 export const FEED_TYPES = [
   { id: "type0", name: "" },
@@ -138,15 +208,6 @@ export const FEED_TYPES = [
   { id: "type2", name: "おとひめ10" },
   { id: "type3", name: "桜モジャコ3" },
 ];
-
-// // 摂餌活性
-// export const FEEDING_ACTIVITY = [
-//   { value: 1, label: "1: 良くない" },
-//   { value: 2, label: "2: あまり良くない" },
-//   { value: 3, label: "3: 普通" },
-//   { value: 4, label: "4: 良い" },
-//   { value: 5, label: "5: とても良い" },
-// ] as const;
 
 // ヘルパー関数
 export const getParameterById = (id: string) =>
@@ -162,11 +223,13 @@ export const getEquipmentParameters = () =>
     ].includes(param.id)
   );
 export const getBreedingParameters = () =>
-  PARAMETERS.filter((param) =>
-    ["oxygenSaturation", "ph", "temperature"].includes(param.id)
-  );
+  PARAMETERS.filter((param) => ["do", "ph", "temperature"].includes(param.id));
 export const getPackTestParameters = () =>
   PARAMETERS.filter((param) => ["no2", "no3", "nh4"].includes(param.id));
+
+// 手入力パラメータ取得用ヘルパー関数
+export const getManualParameterById = (id: string) =>
+  MANUAL_PARAMETERS.find((param) => param.id === id);
 
 export const getFeedTypeName = (id: string): string => {
   const feed = FEED_TYPES.find((type) => type.id === id);
@@ -175,13 +238,3 @@ export const getFeedTypeName = (id: string): string => {
 
 export type FeedType = (typeof FEED_TYPES)[number];
 export type FeedTypeId = FeedType["id"];
-
-// export type FeedingActivity = (typeof FEEDING_ACTIVITY)[number];
-// export type FeedingActivityValue = FeedingActivity["value"];
-
-// export const getFeedingActivityLabel = (value: string): string => {
-//   const activity = FEEDING_ACTIVITY.find(
-//     (a) => String(a.value) === String(value)
-//   );
-//   return activity ? activity.label : "-";
-// };

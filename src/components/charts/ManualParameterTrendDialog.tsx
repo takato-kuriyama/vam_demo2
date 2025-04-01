@@ -26,14 +26,10 @@ import {
   isAfter,
 } from "date-fns";
 import { ja } from "date-fns/locale";
-import {
-  BreedingPlcData,
-  ParameterDefinition,
-  TankMaster,
-} from "../../types/dataModels";
+import { TankMaster } from "../../types/dataModels";
 
-// 時間範囲の定義 - 3カ月を削除し、3日間を追加
-type TimeRange = "24h" | "3d" | "1w" | "1m" | "custom";
+// 時間範囲の定義 - 手入力データ用に1週間、1ヶ月、カスタム期間
+type TimeRange = "1w" | "1m" | "custom";
 
 // チャートの色パレット
 const CHART_COLORS = [
@@ -48,18 +44,47 @@ const CHART_COLORS = [
   "#607D8B", // ブルーグレー
 ];
 
-interface BreedingParameterTrendDialogProps {
+// 手入力データの型定義
+interface ManualInputData {
+  id: string;
+  timestamp: string;
+  tankId: string;
+  nh4?: number;
+  no2?: number;
+  no3?: number;
+  tClo?: number;
+  cloDp?: number;
+  ph?: number;
+}
+
+// パラメータ定義
+interface ManualParameter {
+  id: string;
+  name: string;
+  unit: string;
+  warningMin: number;
+  warningMax: number;
+  dangerMin: number;
+  dangerMax: number;
+}
+
+interface ManualParameterTrendDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  parameter: ParameterDefinition;
+  parameter: ManualParameter;
   tankId: string;
-  breedingData: BreedingPlcData[];
+  manualData: ManualInputData[];
   tanks: TankMaster[];
 }
 
-const BreedingParameterTrendDialog: React.FC<
-  BreedingParameterTrendDialogProps
-> = ({ isOpen, onClose, parameter, tankId, breedingData, tanks }) => {
+const ManualParameterTrendDialog: React.FC<ManualParameterTrendDialogProps> = ({
+  isOpen,
+  onClose,
+  parameter,
+  tankId,
+  manualData,
+  tanks,
+}) => {
   // 表示用の期間設定 - デフォルトを1週間に設定
   const [timeRange, setTimeRange] = useState<TimeRange>("1w");
 
@@ -91,7 +116,7 @@ const BreedingParameterTrendDialog: React.FC<
     customStartDate,
     customEndDate,
     selectedTanks,
-    breedingData,
+    manualData,
     tankId,
   ]);
 
@@ -103,12 +128,6 @@ const BreedingParameterTrendDialog: React.FC<
     let endDate: Date = now;
 
     switch (timeRange) {
-      case "24h":
-        startDate = subDays(now, 1);
-        break;
-      case "3d":
-        startDate = subDays(now, 3);
-        break;
       case "1w":
         startDate = subWeeks(now, 1);
         break;
@@ -124,7 +143,7 @@ const BreedingParameterTrendDialog: React.FC<
     }
 
     // 選択されたタンクのデータをフィルタリング
-    const filteredData = breedingData
+    const filteredData = manualData
       .filter((data) => {
         // 選択された水槽のみフィルタリング
         if (!selectedTanks.includes(data.tankId)) return false;
@@ -138,7 +157,7 @@ const BreedingParameterTrendDialog: React.FC<
       );
 
     // データを水槽ごとに分類
-    const dataByTank: Record<string, BreedingPlcData[]> = {};
+    const dataByTank: Record<string, ManualInputData[]> = {};
     selectedTanks.forEach((tid) => {
       dataByTank[tid] = filteredData.filter((d) => d.tankId === tid);
     });
@@ -154,11 +173,7 @@ const BreedingParameterTrendDialog: React.FC<
 
     // すべてのタイムスタンプを含むデータを作成
     const formattedData = sortedTimestamps.map((timestamp) => {
-      const displayTime = format(
-        new Date(timestamp),
-        timeRange === "24h" ? "HH:mm" : "MM/dd",
-        { locale: ja }
-      );
+      const displayTime = format(new Date(timestamp), "MM/dd", { locale: ja });
 
       // 基本のデータポイント
       const dataPoint: any = {
@@ -172,7 +187,7 @@ const BreedingParameterTrendDialog: React.FC<
         if (tankData) {
           // パラメータの値を取得
           dataPoint[getChartKey(tid)] =
-            tankData[parameter.id as keyof BreedingPlcData];
+            tankData[parameter.id as keyof ManualInputData];
         } else {
           // データが欠けている場合はnull
           dataPoint[getChartKey(tid)] = null;
@@ -226,20 +241,6 @@ const BreedingParameterTrendDialog: React.FC<
           <DialogTitle className="text-xl font-bold flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <span>{parameter.name}の推移</span>
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <Button
-                variant={timeRange === "24h" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeRange("24h")}
-              >
-                24時間
-              </Button>
-              <Button
-                variant={timeRange === "3d" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeRange("3d")}
-              >
-                3日間
-              </Button>
               <Button
                 variant={timeRange === "1w" ? "default" : "outline"}
                 size="sm"
@@ -380,7 +381,7 @@ const BreedingParameterTrendDialog: React.FC<
                 <XAxis
                   dataKey="displayTime"
                   label={{
-                    value: "時間",
+                    value: "日付",
                     position: "insideBottomRight",
                     offset: -10,
                   }}
@@ -418,7 +419,7 @@ const BreedingParameterTrendDialog: React.FC<
                     const tankId = name.split("_")[0];
                     return [`${value} ${parameter.unit}`, getTankName(tankId)];
                   }}
-                  labelFormatter={(label) => `時刻: ${label}`}
+                  labelFormatter={(label) => `日付: ${label}`}
                 />
                 <Legend />
 
@@ -472,39 +473,16 @@ const BreedingParameterTrendDialog: React.FC<
                     stroke={getTankColor(index)}
                     strokeWidth={2}
                     connectNulls={false}
-                    dot={(props) => {
-                      // データ欠損ポイントには何も表示しない
-                      if (props.payload[getChartKey(tid)] === null) return null;
-
-                      // 期間によってドット表示を切り替え
-                      if (timeRange === "24h") {
-                        return (
-                          <circle
-                            cx={props.cx}
-                            cy={props.cy}
-                            r={3}
-                            fill={getTankColor(index)}
-                            stroke={getTankColor(index)}
-                          />
-                        );
-                      }
-                      // 3日以上の期間ではドットを非表示
-                      return null;
+                    dot={{
+                      r: 4,
+                      fill: getTankColor(index),
+                      stroke: getTankColor(index),
                     }}
-                    activeDot={(props: any) => {
-                      // データ欠損の場合は何も表示しない
-                      if (props.payload[getChartKey(tid)] === null) return null;
-
-                      return (
-                        <circle
-                          cx={props.cx}
-                          cy={props.cy}
-                          r={5}
-                          fill={getTankColor(index)}
-                          stroke="white"
-                          strokeWidth={2}
-                        />
-                      );
+                    activeDot={{
+                      r: 6,
+                      fill: getTankColor(index),
+                      stroke: "white",
+                      strokeWidth: 2,
                     }}
                   />
                 ))}
@@ -560,4 +538,4 @@ const BreedingParameterTrendDialog: React.FC<
   );
 };
 
-export default BreedingParameterTrendDialog;
+export default ManualParameterTrendDialog;

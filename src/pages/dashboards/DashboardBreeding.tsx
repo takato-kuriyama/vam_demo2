@@ -5,20 +5,21 @@ import { PageContainer } from "../../components/layouts/PageContainer";
 import { useMasterData, useBreedingData } from "../../hooks/useDataStore";
 import { BreedingPlcData, ParameterDefinition } from "../../types/dataModels";
 import BreedingParameterTrendDialog from "../../components/charts/BreedingParameterTrendDialog";
+// 手入力データ用のダイアログをインポート
+import ManualParameterTrendDialog from "../../components/charts/ManualParameterTrendDialog";
 import { ParameterCard } from "../../components/features/ParameterCard";
 import { TabContainer } from "../../components/ui/tab-container";
+import {
+  MANUAL_PARAMETERS,
+  getManualParameterById,
+} from "../../constants/masterData/parameters";
 
 // 飼育槽パラメータの定義
 const BREEDING_PARAMETERS = [
   {
-    id: "oxygenSaturation",
-    name: "酸素飽和度",
-    unit: "%",
-  },
-  {
-    id: "ph",
-    name: "pH",
-    unit: "",
+    id: "do",
+    name: "DO",
+    unit: "mg/L",
   },
   {
     id: "temperature",
@@ -26,6 +27,70 @@ const BREEDING_PARAMETERS = [
     unit: "℃",
   },
 ] as const;
+
+// 手入力パラメータの定義
+const MANUAL_PARAMETERS_UI = [
+  {
+    id: "nh4",
+    name: "NH4",
+    unit: "mg/L",
+  },
+  {
+    id: "no2",
+    name: "NO2",
+    unit: "mg/L",
+  },
+  {
+    id: "no3",
+    name: "NO3",
+    unit: "mg/L",
+  },
+  {
+    id: "tClo",
+    name: "T-ClO",
+    unit: "mg/L",
+  },
+  {
+    id: "cloDp",
+    name: "ClO-DP",
+    unit: "mg/L",
+  },
+  {
+    id: "ph",
+    name: "pH",
+    unit: "",
+  },
+] as const;
+
+// テスト用の手入力データを生成する関数
+const generateMockManualData = (tankIds: string[]) => {
+  const data = [];
+  const now = new Date();
+
+  // 過去30日分のデータを生成
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+
+    // 各タンクごとにデータを生成
+    for (const tankId of tankIds) {
+      // 1日1回のデータを想定
+      data.push({
+        id: `manual-${tankId}-${i}`,
+        timestamp: date.toISOString(),
+        tankId: tankId,
+        nh4: Math.random() * 0.1 + 0.02,
+        no2: Math.random() * 0.08 + 0.01,
+        no3: Math.random() * 10 + 2,
+        tClo: Math.random() * 0.15 + 0.05,
+        cloDp: Math.random() * 0.1 + 0.02,
+        ph: Math.random() * 1 + 6.8,
+      });
+    }
+  }
+
+  return data;
+};
 
 const DashboardBreeding = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -41,10 +106,30 @@ const DashboardBreeding = () => {
     Record<string, BreedingPlcData | null>
   >({});
 
-  // パラメータトレンドダイアログの状態
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedParameter, setSelectedParameter] =
+  // 手入力データ（ダミー）
+  const [manualInputData, setManualInputData] = useState<
+    Record<string, number>
+  >({
+    nh4: 0.05,
+    no2: 0.02,
+    no3: 5.1,
+    tClo: 0.12,
+    cloDp: 0.08,
+    ph: 7.2,
+  });
+
+  // モック手入力データ
+  const [mockManualData, setMockManualData] = useState<any[]>([]);
+
+  // PLCパラメータトレンドダイアログの状態
+  const [isPlcDialogOpen, setIsPlcDialogOpen] = useState(false);
+  const [selectedPlcParameter, setSelectedPlcParameter] =
     useState<ParameterDefinition | null>(null);
+
+  // 手入力パラメータトレンドダイアログの状態
+  const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
+  const [selectedManualParameter, setSelectedManualParameter] =
+    useState<any>(null);
 
   // ページ読み込み時に最初のタンクを選択
   useEffect(() => {
@@ -55,6 +140,10 @@ const DashboardBreeding = () => {
 
       if (breedingTanks.length > 0 && !selectedTank) {
         setSelectedTank(breedingTanks[0].id);
+
+        // モック手入力データを生成
+        const tankIds = breedingTanks.map((tank) => tank.id);
+        setMockManualData(generateMockManualData(tankIds));
       }
     }
   }, [isMasterLoading, masterData.tanks, selectedTank]);
@@ -93,7 +182,7 @@ const DashboardBreeding = () => {
     const newStatuses: Record<string, StatusType> = {};
 
     // 各パラメータの定義を取得
-    for (const paramId of ["oxygenSaturation", "ph", "temperature"]) {
+    for (const paramId of ["do", "temperature"]) {
       const param = masterData.parameters.find((p) => p.id === paramId);
       if (!param) continue;
 
@@ -115,15 +204,36 @@ const DashboardBreeding = () => {
       }
     }
 
+    // 手入力パラメータのステータス（ダミー）
+    MANUAL_PARAMETERS_UI.forEach((param) => {
+      const value = manualInputData[param.id];
+      // ダミーのステータス判定（実際にはマスターデータから基準値を取得）
+      newStatuses[param.id] =
+        Math.random() > 0.7
+          ? STATUS.NORMAL
+          : Math.random() > 0.5
+          ? STATUS.WARNING
+          : STATUS.ERROR;
+    });
+
     setStatuses(newStatuses);
   };
 
-  // パラメータカードクリック時のハンドラ
-  const handleParameterClick = (paramId: string) => {
+  // PLCパラメータカードクリック時のハンドラ
+  const handlePlcParameterClick = (paramId: string) => {
     const param = masterData.parameters.find((p) => p.id === paramId);
     if (param) {
-      setSelectedParameter(param);
-      setIsDialogOpen(true);
+      setSelectedPlcParameter(param);
+      setIsPlcDialogOpen(true);
+    }
+  };
+
+  // 手入力パラメータカードクリック時のハンドラ
+  const handleManualParameterClick = (paramId: string) => {
+    const param = getManualParameterById(paramId);
+    if (param) {
+      setSelectedManualParameter(param);
+      setIsManualDialogOpen(true);
     }
   };
 
@@ -180,14 +290,19 @@ const DashboardBreeding = () => {
             </div>
           </div>
 
-          {/* パラメータグリッド */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* PLCパラメータグリッド */}
+          <h3 className="text-lg font-medium mb-4">PLCデータ</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {BREEDING_PARAMETERS.map((param) => {
               const status = statuses[param.id] || STATUS.NORMAL;
               const statusInfo = STATUS_DISPLAY[status];
-              const value = currentTankData[
-                param.id as keyof BreedingPlcData
-              ] as number;
+              // DOデータは現在持っていないのでダミーで表示
+              const value =
+                param.id === "do"
+                  ? 7.5 // DOはダミーデータ
+                  : (currentTankData[
+                      param.id as keyof BreedingPlcData
+                    ] as number);
               const paramDef = masterData.parameters.find(
                 (p) => p.id === param.id
               );
@@ -202,7 +317,32 @@ const DashboardBreeding = () => {
                   statusText={statusInfo.text}
                   normalMin={paramDef?.normalMin}
                   normalMax={paramDef?.normalMax}
-                  onClick={() => handleParameterClick(param.id)}
+                  onClick={() => handlePlcParameterClick(param.id)}
+                />
+              );
+            })}
+          </div>
+
+          {/* 手入力パラメータグリッド */}
+          <h3 className="text-lg font-medium mb-4">手入力データ</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {MANUAL_PARAMETERS_UI.map((param) => {
+              const status = statuses[param.id] || STATUS.NORMAL;
+              const statusInfo = STATUS_DISPLAY[status];
+              const value = manualInputData[param.id];
+              const paramDef = getManualParameterById(param.id);
+
+              return (
+                <ParameterCard
+                  key={param.id}
+                  name={param.name}
+                  value={value}
+                  unit={param.unit}
+                  status={status}
+                  statusText={statusInfo.text}
+                  normalMin={paramDef?.normalMin}
+                  normalMax={paramDef?.normalMax}
+                  onClick={() => handleManualParameterClick(param.id)}
                 />
               );
             })}
@@ -216,17 +356,32 @@ const DashboardBreeding = () => {
         </div>
       )}
 
-      {/* パラメータトレンドチャートダイアログ */}
-      {selectedParameter && isDialogOpen && (
+      {/* PLCパラメータトレンドチャートダイアログ */}
+      {selectedPlcParameter && isPlcDialogOpen && (
         <BreedingParameterTrendDialog
-          isOpen={isDialogOpen}
+          isOpen={isPlcDialogOpen}
           onClose={() => {
-            setIsDialogOpen(false);
-            setSelectedParameter(null);
+            setIsPlcDialogOpen(false);
+            setSelectedPlcParameter(null);
           }}
-          parameter={selectedParameter}
+          parameter={selectedPlcParameter}
           tankId={selectedTank}
           breedingData={breedingData}
+          tanks={breedingTanks}
+        />
+      )}
+
+      {/* 手入力パラメータトレンドチャートダイアログ */}
+      {selectedManualParameter && isManualDialogOpen && (
+        <ManualParameterTrendDialog
+          isOpen={isManualDialogOpen}
+          onClose={() => {
+            setIsManualDialogOpen(false);
+            setSelectedManualParameter(null);
+          }}
+          parameter={selectedManualParameter}
+          tankId={selectedTank}
+          manualData={mockManualData}
           tanks={breedingTanks}
         />
       )}
