@@ -550,7 +550,7 @@ export function generateAllData(startDate: Date, endDate: Date) {
       .fill(0)
       .map((_, i) => ({
         id: `A-${i + 1}`,
-        name: `A${i + 1}水槽`,
+        name: `A${i + 1}`,
         lineId: "A",
         type: "breeding" as const,
         order: i + 1,
@@ -560,7 +560,7 @@ export function generateAllData(startDate: Date, endDate: Date) {
       .fill(0)
       .map((_, i) => ({
         id: `B-${i + 1}`,
-        name: `B${i + 1}水槽`,
+        name: `B${i + 1}`,
         lineId: "B",
         type: "breeding" as const,
         order: i + 1,

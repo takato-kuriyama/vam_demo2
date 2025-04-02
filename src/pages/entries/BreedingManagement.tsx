@@ -331,7 +331,6 @@ const BreedingManagement: React.FC = () => {
                   inputMode="numeric"
                   value={formData.mortality || ""}
                   onChange={handleInputChange}
-                  placeholder="総斃死数を入力"
                   className="w-full max-w-[200px]"
                 />
               </div>
@@ -355,7 +354,6 @@ const BreedingManagement: React.FC = () => {
                   step="0.1"
                   value={formData.averageWeight || ""}
                   onChange={handleInputChange}
-                  placeholder="平均魚体重を入力"
                   className="w-full max-w-[200px]"
                 />
               </div>
@@ -373,7 +371,6 @@ const BreedingManagement: React.FC = () => {
                       step="0.01"
                       value={formData.nh4 || ""}
                       onChange={handleInputChange}
-                      placeholder="NH4を入力"
                     />
                   </div>
                   <div className="space-y-2">
@@ -386,7 +383,6 @@ const BreedingManagement: React.FC = () => {
                       step="0.01"
                       value={formData.no2 || ""}
                       onChange={handleInputChange}
-                      placeholder="NO2を入力"
                     />
                   </div>
                   <div className="space-y-2">
@@ -399,7 +395,6 @@ const BreedingManagement: React.FC = () => {
                       step="0.1"
                       value={formData.no3 || ""}
                       onChange={handleInputChange}
-                      placeholder="NO3を入力"
                     />
                   </div>
                   <div className="space-y-2">
@@ -412,7 +407,6 @@ const BreedingManagement: React.FC = () => {
                       step="0.1"
                       value={formData.tClo || ""}
                       onChange={handleInputChange}
-                      placeholder="T-ClOを入力"
                     />
                   </div>
                   <div className="space-y-2">
@@ -425,7 +419,6 @@ const BreedingManagement: React.FC = () => {
                       step="0.1"
                       value={formData.cloDp || ""}
                       onChange={handleInputChange}
-                      placeholder="ClO-DPを入力"
                     />
                   </div>
                   <div className="space-y-2">
@@ -438,7 +431,6 @@ const BreedingManagement: React.FC = () => {
                       step="0.1"
                       value={formData.ph || ""}
                       onChange={handleInputChange}
-                      placeholder="pHを入力"
                     />
                   </div>
                 </div>

@@ -226,7 +226,7 @@ const BreedingDataTable = () => {
         tankId: tankId,
         tankName: tankMap.get(tankId) || tankId,
         // 種苗名はダミーデータとして固定で設定
-        seedName: "20250228マリンテックカワハギ",
+        seedName: "20250228MTカワハギ",
         // 尾数のダミーデータ
         fishCount: Math.floor(Math.random() * 1000) + 100,
         mortality: mortalityCounts.get(key) || 1,

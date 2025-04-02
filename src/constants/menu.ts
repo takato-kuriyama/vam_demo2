@@ -3,7 +3,8 @@ import { ROUTES, RoutePaths } from "./routes";
 import {
   Bell,
   Home,
-  LayoutDashboard,
+  Database,
+  Activity,
   Monitor,
   Settings,
   FileText,
@@ -17,10 +18,16 @@ import {
 export const HEADER_MENU_ITEMS = [
   { id: "home", path: ROUTES.HOME, label: "ホーム", icon: Home },
   {
-    id: "dashboard",
-    path: ROUTES.DASHBOARD,
-    label: "ダッシュボード",
-    icon: LayoutDashboard,
+    id: "dashboardEquipment",
+    path: ROUTES.DASHBOARD_EQUIPMENT,
+    label: "ろ過部DB",
+    icon: Database,
+  },
+  {
+    id: "dashboardBreeding",
+    path: ROUTES.DASHBOARD_BREEDING,
+    label: "飼育槽DB",
+    icon: Activity,
   },
   {
     id: "breeding",
@@ -87,10 +94,16 @@ export const SIDE_MENU_ITEMS = [
     icon: Home,
   },
   {
-    id: "dashboard",
-    path: ROUTES.DASHBOARD,
-    label: "ダッシュボード",
-    icon: LayoutDashboard,
+    id: "dashboardEquipment",
+    path: ROUTES.DASHBOARD_EQUIPMENT,
+    label: "ろ過部DB",
+    icon: Database,
+  },
+  {
+    id: "dashboardBreeding",
+    path: ROUTES.DASHBOARD_BREEDING,
+    label: "飼育槽DB",
+    icon: Activity,
   },
   {
     id: "breeding",

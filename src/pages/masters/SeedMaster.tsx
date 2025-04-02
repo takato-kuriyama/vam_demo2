@@ -31,14 +31,14 @@ const SeedMaster = () => {
   // マスターデータフックを使用
   const { isLoading, error } = useMasterData();
 
-  // 仮のサプライヤーデータ（実際のアプリではAPIから取得）
+  // 仮のサプライヤーデータ
   const suppliers = [
     { id: "supplier1", name: "マリンテック", shortName: "MT", active: true },
     { id: "supplier2", name: "バイオ愛媛", shortName: "BE", active: true },
     { id: "supplier3", name: "近畿大学", shortName: "KU", active: true },
   ];
 
-  // 仮の魚種データ（実際のアプリではAPIから取得）
+  // 仮の魚種データ
   const species = [
     { id: "species1", name: "クエタマ", active: true },
     { id: "species2", name: "カワハギ", active: true },

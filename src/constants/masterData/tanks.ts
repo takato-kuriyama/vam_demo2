@@ -13,7 +13,7 @@ export const TANKS: TankMaster[] = [
   // Aラインの飼育槽
   {
     id: "A-1",
-    name: "A1水槽",
+    name: "A1",
     lineId: "A",
     type: "breeding",
     order: 1,
@@ -21,7 +21,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "A-2",
-    name: "A2水槽",
+    name: "A2",
     lineId: "A",
     type: "breeding",
     order: 2,
@@ -29,7 +29,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "A-3",
-    name: "A3水槽",
+    name: "A3",
     lineId: "A",
     type: "breeding",
     order: 3,
@@ -37,7 +37,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "A-4",
-    name: "A4水槽",
+    name: "A4",
     lineId: "A",
     type: "breeding",
     order: 4,
@@ -45,7 +45,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "A-5",
-    name: "A5水槽",
+    name: "A5",
     lineId: "A",
     type: "breeding",
     order: 5,
@@ -55,7 +55,7 @@ export const TANKS: TankMaster[] = [
   // Bラインの飼育槽
   {
     id: "B-1",
-    name: "B1水槽",
+    name: "B1",
     lineId: "B",
     type: "breeding",
     order: 1,
@@ -63,7 +63,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "B-2",
-    name: "B2水槽",
+    name: "B2",
     lineId: "B",
     type: "breeding",
     order: 2,
@@ -71,7 +71,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "B-3",
-    name: "B3水槽",
+    name: "B3",
     lineId: "B",
     type: "breeding",
     order: 3,
@@ -79,7 +79,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "B-4",
-    name: "B4水槽",
+    name: "B4",
     lineId: "B",
     type: "breeding",
     order: 4,
@@ -87,7 +87,7 @@ export const TANKS: TankMaster[] = [
   },
   {
     id: "B-5",
-    name: "B5水槽",
+    name: "B5",
     lineId: "B",
     type: "breeding",
     order: 5,

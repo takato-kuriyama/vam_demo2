@@ -13,6 +13,8 @@ import {
   MANUAL_PARAMETERS,
   getManualParameterById,
 } from "../../constants/masterData/parameters";
+// 成長推移・飼料効率グラフコンポーネントをインポート
+import GrowthEfficiencyCharts from "../../components/charts/GrowthEfficiencyCharts";
 
 // 飼育槽パラメータの定義
 const BREEDING_PARAMETERS = [
@@ -93,7 +95,6 @@ const generateMockManualData = (tankIds: string[]) => {
 };
 
 const DashboardBreeding = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, StatusType>>({});
   const [selectedTank, setSelectedTank] = useState("");
 
@@ -325,7 +326,7 @@ const DashboardBreeding = () => {
 
           {/* 手入力パラメータグリッド */}
           <h3 className="text-lg font-medium mb-4">手入力データ</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
             {MANUAL_PARAMETERS_UI.map((param) => {
               const status = statuses[param.id] || STATUS.NORMAL;
               const statusInfo = STATUS_DISPLAY[status];
@@ -346,6 +347,11 @@ const DashboardBreeding = () => {
                 />
               );
             })}
+          </div>
+
+          {/* 成長推移・飼料効率グラフエリア - 新規追加 */}
+          <div className="mt-8 mb-6">
+            <GrowthEfficiencyCharts tankId={selectedTank} />
           </div>
         </>
       ) : (

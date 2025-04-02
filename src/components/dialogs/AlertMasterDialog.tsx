@@ -127,7 +127,7 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>閾値設定（警告値）：</Label>
+            <Label>閾値設定（正常値）：</Label>
             <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <Input
                 type="number"
@@ -159,8 +159,10 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>危険値設定：</Label>
+            <Label>警告値設定：</Label>
             <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
+              <span className="hidden sm:inline">～</span>
+              <span className="sm:hidden text-center w-full">～</span>
               <Input
                 type="number"
                 step="0.1"
@@ -173,8 +175,8 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
                 }
                 className="w-full"
               />
-              <span className="hidden sm:inline">～</span>
-              <span className="sm:hidden text-center w-full">～</span>
+              <span className="hidden sm:inline">/</span>
+              <span className="sm:hidden text-center w-full">/</span>
               <Input
                 type="number"
                 step="0.1"
@@ -187,6 +189,8 @@ export const AlertMasterDialog: React.FC<AlertMasterDialogProps> = ({
                 }
                 className="w-full"
               />
+              <span className="hidden sm:inline">～</span>
+              <span className="sm:hidden text-center w-full">～</span>
             </div>
           </div>
 

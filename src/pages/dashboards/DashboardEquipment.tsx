@@ -219,6 +219,9 @@ const DashboardEquipment = () => {
                 />
               )}
           </div>
+          <div>
+            <p>塩分濃度とpHを同様に追加</p>
+          </div>
         </>
       ) : (
         <Card>
