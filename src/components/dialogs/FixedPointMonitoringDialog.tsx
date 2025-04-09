@@ -282,6 +282,9 @@ export const FixedPointMonitoringDialog: React.FC<
                       </div>
                     ))}
                   </div>
+                  <p className="text-xs mt-2 text-red-500">
+                    異常値の項目だけ色が変更されるように修正
+                  </p>
                 </div>
               </div>
 

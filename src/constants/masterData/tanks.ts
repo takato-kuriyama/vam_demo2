@@ -13,7 +13,7 @@ export const TANKS: TankMaster[] = [
   // Aラインの飼育槽
   {
     id: "A-1",
-    name: "A1",
+    name: "A1test",
     lineId: "A",
     type: "breeding",
     order: 1,
@@ -86,8 +86,8 @@ export const TANKS: TankMaster[] = [
     active: true,
   },
   {
-    id: "B-5",
-    name: "B5",
+    id: "B-8",
+    name: "出荷槽",
     lineId: "B",
     type: "breeding",
     order: 5,

@@ -16,7 +16,7 @@ export const PageContainer = ({
           <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
           {action}
         </div>
-        {children}
+        <div className="h-[calc(100vh-120px)] overflow-auto">{children}</div>
       </div>
     </div>
   );

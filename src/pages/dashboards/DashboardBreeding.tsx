@@ -13,8 +13,7 @@ import {
   MANUAL_PARAMETERS,
   getManualParameterById,
 } from "../../constants/masterData/parameters";
-// 成長推移・飼料効率グラフコンポーネントをインポート
-import GrowthEfficiencyCharts from "../../components/charts/GrowthEfficiencyCharts";
+import GrowthParameterDialog from "../../components/charts/GrowthParameterDialog";
 
 // 飼育槽パラメータの定義
 const BREEDING_PARAMETERS = [
@@ -34,27 +33,27 @@ const BREEDING_PARAMETERS = [
 const MANUAL_PARAMETERS_UI = [
   {
     id: "nh4",
-    name: "NH4",
+    name: "NH₄",
     unit: "mg/L",
   },
   {
     id: "no2",
-    name: "NO2",
+    name: "NO₂",
     unit: "mg/L",
   },
   {
     id: "no3",
-    name: "NO3",
+    name: "NO₃",
     unit: "mg/L",
   },
   {
     id: "tClo",
-    name: "T-ClO",
+    name: "T-ClO(総塩素)",
     unit: "mg/L",
   },
   {
     id: "cloDp",
-    name: "ClO-DP",
+    name: "ClO-DP(遊離塩素)",
     unit: "mg/L",
   },
   {
@@ -131,7 +130,23 @@ const DashboardBreeding = () => {
   const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
   const [selectedManualParameter, setSelectedManualParameter] =
     useState<any>(null);
+  const [isGrowthDialogOpen, setIsGrowthDialogOpen] = useState(false);
+  const [selectedGrowthParameter, setSelectedGrowthParameter] = useState<
+    string | null
+  >(null);
 
+  // 平均魚体重と餌料効率のデータ（ダミー）
+  const growthData = {
+    averageWeight: 250, // グラム
+    feedEfficiency: 0.833, // 83%
+    fcr: 1.2,
+  };
+
+  // 平均魚体重クリック時のハンドラ
+  const handleGrowthParameterClick = (paramId: string) => {
+    setSelectedGrowthParameter(paramId);
+    setIsGrowthDialogOpen(true);
+  };
   // ページ読み込み時に最初のタンクを選択
   useEffect(() => {
     if (!isMasterLoading && masterData.tanks.length > 0) {
@@ -266,101 +281,138 @@ const DashboardBreeding = () => {
 
   return (
     <PageContainer title={PAGE_TITLES.DASHBOARD_BREEDING}>
-      {/* 水槽選択 */}
-      <TabContainer
-        items={breedingTanks.map((tank) => ({
-          id: tank.id,
-          label: tank.name,
-        }))}
-        activeTab={selectedTank}
-        onTabChange={setSelectedTank}
-        className="mb-6"
-      />
+      {/* ページ固定 */}
+      <div className="sticky top-0 z-10 bg-white">
+        {/* 水槽選択 */}
+        <TabContainer
+          items={breedingTanks.map((tank) => ({
+            id: tank.id,
+            label: tank.name,
+          }))}
+          activeTab={selectedTank}
+          onTabChange={setSelectedTank}
+          className="mb-6"
+        />
+      </div>
 
-      {currentTankData ? (
-        <>
-          {/* 最終更新時間情報 */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 px-2">
-            <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-              <div className="px-4 py-2 bg-gray-50 rounded-lg">
-                <span className="text-sm text-gray-600">
-                  最終更新:{" "}
-                  {new Date(currentTankData.timestamp).toLocaleString("ja-JP")}
-                </span>
+      <div className="overflow-y-auto">
+        {currentTankData ? (
+          <>
+            {/* 最終更新時間情報 */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 px-2">
+              <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+                <div className="px-4 py-2 bg-gray-50 rounded-lg">
+                  <span className="text-sm text-gray-600">
+                    最終更新:{" "}
+                    {new Date(currentTankData.timestamp).toLocaleString(
+                      "ja-JP"
+                    )}
+                  </span>
+                </div>
               </div>
             </div>
+            {/* PLCパラメータグリッド */}
+            <h3 className="text-lg font-medium mb-4">PLCデータ</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {BREEDING_PARAMETERS.map((param) => {
+                const status = statuses[param.id] || STATUS.NORMAL;
+                const statusInfo = STATUS_DISPLAY[status];
+                // DOデータは現在持っていないのでダミーで表示
+                const value =
+                  param.id === "do"
+                    ? 7.5 // DOはダミーデータ
+                    : (currentTankData[
+                        param.id as keyof BreedingPlcData
+                      ] as number);
+                const paramDef = masterData.parameters.find(
+                  (p) => p.id === param.id
+                );
+
+                return (
+                  <ParameterCard
+                    key={param.id}
+                    name={param.name}
+                    value={value}
+                    unit={param.unit}
+                    status={status}
+                    statusText={statusInfo.text}
+                    normalMin={paramDef?.normalMin}
+                    normalMax={paramDef?.normalMax}
+                    onClick={() => handlePlcParameterClick(param.id)}
+                  />
+                );
+              })}
+            </div>
+            {/* 手入力パラメータグリッド */}
+            <h3 className="text-lg font-medium mb-4">手入力データ</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+              {MANUAL_PARAMETERS_UI.map((param) => {
+                const status = statuses[param.id] || STATUS.NORMAL;
+                const statusInfo = STATUS_DISPLAY[status];
+                const value = manualInputData[param.id];
+                const paramDef = getManualParameterById(param.id);
+
+                return (
+                  <ParameterCard
+                    key={param.id}
+                    name={param.name}
+                    value={value}
+                    unit={param.unit}
+                    status={status}
+                    statusText={statusInfo.text}
+                    normalMin={paramDef?.normalMin}
+                    normalMax={paramDef?.normalMax}
+                    onClick={() => handleManualParameterClick(param.id)}
+                  />
+                );
+              })}
+            </div>
+            <h3 className="text-lg font-medium mb-4">成長データ</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <ParameterCard
+                key="averageWeight"
+                name="平均魚体重予想"
+                value={growthData.averageWeight} //前回測定平均魚体重 +（前回測定日～今日の餌の量）＊餌料効率（前回測定）
+                unit="g"
+                status={STATUS.NORMAL}
+                statusText={STATUS_DISPLAY[STATUS.NORMAL].text}
+                normalMin={0}
+                normalMax={1000}
+                onClick={() => handleGrowthParameterClick("averageWeight")}
+              />
+              <ParameterCard
+                key="feedEfficiency"
+                name="餌料効率"
+                value={growthData.feedEfficiency * 100} // 餌料効率=期間あたりの体重増加/期間あたりの給餌量*100
+                unit="%"
+                status={STATUS.NORMAL}
+                statusText={STATUS_DISPLAY[STATUS.NORMAL].text}
+                normalMin={70}
+                normalMax={100}
+                onClick={() => handleGrowthParameterClick("feedEfficiency")}
+              />
+              <ParameterCard
+                key="fcr"
+                name="FCR"
+                value={growthData.fcr} //fcr=期間あたりの給餌量/期間あたりの体重増加
+                unit=""
+                status={STATUS.NORMAL}
+                statusText={STATUS_DISPLAY[STATUS.NORMAL].text}
+              />
+            </div>
+            {/* 成長推移・飼料効率グラフエリア - 新規追加
+            <div className="mt-8 mb-6">
+              <GrowthEfficiencyCharts tankId={selectedTank} />
+            </div> */}
+          </>
+        ) : (
+          <div className="flex justify-center items-center h-40 bg-white rounded-xl border border-gray-200 shadow-sm">
+            <p className="text-lg text-gray-500">
+              選択された水槽のデータがありません
+            </p>
           </div>
-
-          {/* PLCパラメータグリッド */}
-          <h3 className="text-lg font-medium mb-4">PLCデータ</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {BREEDING_PARAMETERS.map((param) => {
-              const status = statuses[param.id] || STATUS.NORMAL;
-              const statusInfo = STATUS_DISPLAY[status];
-              // DOデータは現在持っていないのでダミーで表示
-              const value =
-                param.id === "do"
-                  ? 7.5 // DOはダミーデータ
-                  : (currentTankData[
-                      param.id as keyof BreedingPlcData
-                    ] as number);
-              const paramDef = masterData.parameters.find(
-                (p) => p.id === param.id
-              );
-
-              return (
-                <ParameterCard
-                  key={param.id}
-                  name={param.name}
-                  value={value}
-                  unit={param.unit}
-                  status={status}
-                  statusText={statusInfo.text}
-                  normalMin={paramDef?.normalMin}
-                  normalMax={paramDef?.normalMax}
-                  onClick={() => handlePlcParameterClick(param.id)}
-                />
-              );
-            })}
-          </div>
-
-          {/* 手入力パラメータグリッド */}
-          <h3 className="text-lg font-medium mb-4">手入力データ</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-            {MANUAL_PARAMETERS_UI.map((param) => {
-              const status = statuses[param.id] || STATUS.NORMAL;
-              const statusInfo = STATUS_DISPLAY[status];
-              const value = manualInputData[param.id];
-              const paramDef = getManualParameterById(param.id);
-
-              return (
-                <ParameterCard
-                  key={param.id}
-                  name={param.name}
-                  value={value}
-                  unit={param.unit}
-                  status={status}
-                  statusText={statusInfo.text}
-                  normalMin={paramDef?.normalMin}
-                  normalMax={paramDef?.normalMax}
-                  onClick={() => handleManualParameterClick(param.id)}
-                />
-              );
-            })}
-          </div>
-
-          {/* 成長推移・飼料効率グラフエリア - 新規追加 */}
-          <div className="mt-8 mb-6">
-            <GrowthEfficiencyCharts tankId={selectedTank} />
-          </div>
-        </>
-      ) : (
-        <div className="flex justify-center items-center h-40 bg-white rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-lg text-gray-500">
-            選択された水槽のデータがありません
-          </p>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* PLCパラメータトレンドチャートダイアログ */}
       {selectedPlcParameter && isPlcDialogOpen && (
@@ -389,6 +441,20 @@ const DashboardBreeding = () => {
           tankId={selectedTank}
           manualData={mockManualData}
           tanks={breedingTanks}
+        />
+      )}
+
+      {/* 成長グラフダイアログ - 新しく追加 */}
+      {selectedGrowthParameter && isGrowthDialogOpen && (
+        <GrowthParameterDialog
+          isOpen={isGrowthDialogOpen}
+          onClose={() => {
+            setIsGrowthDialogOpen(false);
+            setSelectedGrowthParameter(null);
+          }}
+          parameterId={selectedGrowthParameter}
+          tankId={selectedTank}
+          tanks={breedingTanks} // 利用可能な水槽一覧を渡す
         />
       )}
     </PageContainer>

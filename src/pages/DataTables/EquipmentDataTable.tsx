@@ -41,7 +41,7 @@ import { exportTableDataToCsv } from "../../lib/export-utils";
 
 // 選択可能なテーブル列の定義
 const AVAILABLE_COLUMNS = [
-  { id: "date", label: "日付", required: true, unit: "" },
+  { id: "date", label: "日時", required: true, unit: "" },
   { id: "lineName", label: "ライン名", required: true, unit: "" },
   { id: "residualChlorine1", label: "残留塩素計値①", unit: "mg/L" },
   { id: "residualChlorine2", label: "残留塩素計値②", unit: "mg/L" },
@@ -279,6 +279,7 @@ const EquipmentDataTable = () => {
 
           {/* テーブル */}
           <div className="overflow-x-auto overflow-y-auto border rounded-lg relative max-h-[70vh]">
+            <p>実際の日時はDBから10分毎取得⇒CSVも修正 + テーブル上部固定</p>
             <Table className="min-w-full">
               <TableHeader className="sticky top-0 z-20 bg-white shadow-sm">
                 <TableRow>
@@ -302,7 +303,7 @@ const EquipmentDataTable = () => {
                     <TableRow key={index} className="hover:bg-gray-50">
                       {selectedColumns.includes("date") && (
                         <TableCell className="whitespace-nowrap">
-                          {format(row.date, "yyyy/MM/dd", { locale: ja })}
+                          {format(row.date, "yyyy/MM/dd HH:mm", { locale: ja })}
                         </TableCell>
                       )}
 
